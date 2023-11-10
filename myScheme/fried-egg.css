@@ -1,0 +1,15 @@
+#at-ctm {
+  background: white;
+}
+table > tbody > tr:nth-child(odd) > td, table > tbody > tr:nth-child(odd) > th {
+    background-color: #ffcc26;
+}
+#footer {
+  background-color: #f7f7f7;
+}
+#hovered {
+    background-color: #ffcc26;
+}
+#new-msg {
+  background-color: #ffcc26;
+}
