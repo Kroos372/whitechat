@@ -137,6 +137,7 @@ const butt_funcs = {
         var messages = $("#messages");
         messages.innerHTML = "";
         customMsg = [];
+        customHistory = {};
     },
     "clear-last": function (e) {
         lastSent = [""];
@@ -227,6 +228,15 @@ var frontpage = [
     "服务端和客户端在WTFPL和MIT开源许可下发布，",
     "hack.chat服务器上不保留任何历史记录。"
 ];
+var help = [
+    "# 恭喜你发现这个隐藏的帮助⭐",
+    "以下是几个可能帮助到你的tips：",
+    "|||",
+    "|-|-|",
+    "|/setbg|设置背景图|",
+    "|点击识别码（或名字左边的空格）|复制hash|",
+    "|双击消息|复制该消息的历史记录（如果有的话）|"
+].join("\n");
 var imgWhites = [];
 const isMobile = mobileJudge();
 
@@ -289,7 +299,7 @@ md.renderer.rules.link_open = function (tokens, idx, options) {
      "\"" + title + target + ">";
 };
 md.renderer.rules.text = function(tokens, idx) {
-    tokens[idx].content = verifyLatex(utils.escapeHtml(tokens[idx].content));
+    tokens[idx].content = utils.escapeHtml(tokens[idx].content);
 
     if (tokens[idx].content.indexOf("?") !== -1) {
         tokens[idx].content = tokens[idx].content.replace(/(^|\s)(\?)\S+?(?=[,.!?:)]?\s|$)/gm, function(match) {
@@ -505,8 +515,8 @@ function userRemove(channel, nick) {
     var nicks = channels[channel].nicks;
     nicks.splice(nicks.indexOf(nick), 1);
 }
-function isAtBottom(element=$("html")) {
-    return element.clientHeight + element.scrollTop == element.scrollHeight;
+function isAtBottom() {
+    return (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 1);
 }
 var lastMax = 12;
 function updateTitle() {

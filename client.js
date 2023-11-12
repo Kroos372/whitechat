@@ -1,11 +1,10 @@
 "use strict";
 //自定义变量
 var actAnnel = window.location.search.replace(/^\?/, "");
-var channels = {}, kchannel, Kcmd = [".m kick"];
+var channels = {}, kchannel, Kcmd = [".m kick"], shieldWords = [];
 var lastMsg, shouldConnect, mults = {}, multf = false;
 var copyTemplate = localStorageGet("copy-template") || "?$c$: $t$ $n$\n$m$\n";
 var msgTemplate = localStorageGet("msg-template");
-var shieldWords = [];
 const anwz = {
     2: "nask",
     0: "nblank",
@@ -86,11 +85,11 @@ const CMDS = {
         var temp = msg.slice(6);
         if (temp) {
             msgTemplate = localStorage["msg-template"] = temp;
-            pushMessage({ text: "已成功设置消息模板！", change: "info" });
+            pushMessage({text: "已成功设置消息模板！", change: "info"});
         } else {
             msgTemplate = null;
             localStorage.removeItem("msg-template");
-            pushMessage({ text: "已成功删除消息模板！", change: "info" });
+            pushMessage({text: "已成功删除消息模板！", change: "info"});
         }
         return true;
     },
@@ -100,6 +99,12 @@ const CMDS = {
             document.body.setAttribute("style", "background-image: url('" + bg + "')");
         } else {
             document.body.removeAttribute("style");
+        }
+        return true;
+    },
+    "/help": function(msg) {
+        if (!msg.slice(6)) {
+            pushMessage({trip: "coBad2", text: help, change: "info"});
         }
     }
 }
@@ -132,13 +137,13 @@ const KEYS = {
         }
     }
 }
-var customMsg = [];
-function addCustom(customId, userid, text, elem) {
+var customMsg = [], customHistory = {};
+function addCustom(customId, userid, text, ele) {
     customMsg.push({
         customId,
         userid,
         text,
-        elem,
+        ele,
     });
 }
 // 发送消息&消息预处理
@@ -205,17 +210,11 @@ $("#ig-selector").onclick = function(e) {
 }
 $("#mdpreview").onclick = function() {
     var text = $("#chatinput").value;
-    $("#view > p").innerHTML = md.render(text)
+    $("#view > p").innerHTML = md.render(verifyLatex(text));
     $("#mdviewer").classList.remove("hidden");
 }
 $("#delete-msg").onclick = function() {
     choiced.ele.remove();
-}
-$("#copy-hash").onclick = function() {
-    var trip = choiced.ele.firstChild.firstChild;
-    if (trip.title) {
-        copy(trip.title);
-    }
 }
 $("#reply-sb").onclick = function() {
     var arr = choiced.nick.split("#");
@@ -229,12 +228,20 @@ $("#custom-msg").onclick = function() {
     input.value = choiced.text;
     textEl.classList.add("hidden");
     choiced.ele.appendChild(input);
+    input.focus();
     input.onkeydown = function(e){
         if (e.keyCode == 13 && !e.shiftKey) {
             e.preventDefault();
-            send({cmd: "updateMessage", mode: "overwrite", text: input.value, customId: textEl.getAttribute("cusId")}, channels[choiced.channel].socket);
+            try {
+                send({cmd: "updateMessage", mode: "overwrite", text: input.value, customId: textEl.getAttribute("cusId")}, channels[choiced.channel].socket);
+            } catch(err) { }
             textEl.classList.remove("hidden");
             input.remove();
+        } else if (e.keyCode == 27) {
+            textEl.classList.remove("hidden");
+            input.remove();
+        } else if (e.keyCode == 191) {
+            e.stopPropagation();
         }
     }
 }
@@ -301,7 +308,6 @@ $("#close-channel").onclick = function() {
         $("#users-change").value = channel;
         usersPrint(channel);
     }
-
 }
 $("#users-change").onchange = function(e) {
     var channel = e.target.value;
@@ -359,7 +365,6 @@ $("#temp-set").onclick = function(e) {
         copyTemplate = "?$c$: $t$ $n$\n$m$\n";
         localStorage.removeItem("copy-template");
     }
-
 }
 $("#only-now").onclick = function(e) {
     onlyRead = !onlyRead;
@@ -469,7 +474,11 @@ function join(channel, nick, color = null) {
         var cmd = result.cmd, channel = result.channel;
         var command = COMMANDS[cmd];
         if (command) {
-            command.call(null, result);
+            try {
+                command.call(null, result);
+            } catch (err) {
+                pushMessage({text: `出问题了，请刷新重试！\n${err.message}`, change: "warn"});
+            }
         }
     }
 }
@@ -601,9 +610,9 @@ var COMMANDS = {
         pushMessage({ change: "info", text: text });
     },
     updateMessage: function(args) {
-        var mode = args.mode, message;
+        var mode = args.mode, customId = args.customId, message;
         for (let i of customMsg) {
-            if (i.userid === args.userid && i.customId === args.customId) {
+            if (i.userid === args.userid && i.customId === customId) {
                 message = i;
                 break;
             }
@@ -611,6 +620,7 @@ var COMMANDS = {
         if (!message) return;
 
         var newText = message.text;
+        if (!customHistory[customId]) customHistory[customId] = [newText];
         if (mode === "overwrite") {
             newText = args.text;
         } else if (mode === "append") {
@@ -618,10 +628,14 @@ var COMMANDS = {
         } else if (mode === "prepend") {
             newText = args.text + newText;
         }
+        customHistory[customId].push(newText);
 
         var atBottom = isAtBottom();
-        message.innerHTML = md.render(newText);
-        if (atBottom)  window.scrollTo(0, document.body.scrollHeight);
+        message.ele.innerHTML = md.render(verifyLatex(newText));
+        message.ele.ondblclick = function() {
+            copy(customHistory[customId].join("\n"));
+        }
+        if (atBottom) window.scrollTo(0, document.body.scrollHeight);
     }
 }
 function pushMessage(args) {
@@ -676,6 +690,9 @@ function pushMessage(args) {
             nickSpanEl.appendChild(tripEl);
         }
         tripEl.title = args.hash;
+        tripEl.onclick = function () {
+            copy(args.hash);
+        }
     }
     if (args.nick) {
         var nickLinkEl = document.createElement("a");
@@ -716,7 +733,7 @@ function pushMessage(args) {
     var textEl = document.createElement("p");
     textEl.classList.add("text");
     textEl.classList.add("fold");
-    textEl.innerHTML = md.render(text)
+    textEl.innerHTML = md.render(verifyLatex(text))
 
     textEl.onclick = function(e) {
         if (document.getSelection().toString()) return;
