@@ -132,6 +132,15 @@ const KEYS = {
         }
     }
 }
+var customMsg = [];
+function addCustom(customId, userid, text, elem) {
+    customMsg.push({
+        customId,
+        userid,
+        text,
+        elem,
+    });
+}
 // 发送消息&消息预处理
 function sendMsg(msg, trace = true, ws) {
     var rawMsg = msg;
@@ -149,7 +158,9 @@ function sendMsg(msg, trace = true, ws) {
     }
     if (msgTemplate && !msg.startsWith("/")) msg = msgTemplate.replaceAll("%m", msg);
 
-    send({ cmd: "chat", text: msg }, ws);
+    if ($("#allCustom")) send({cmd: "chat", text: msg, customId: randomCustom()}, ws);
+    else send({cmd: "chat", text: msg}, ws);
+    
     if (trace) {
         sent(rawMsg);
         var dt = new Date();
@@ -194,8 +205,7 @@ $("#ig-selector").onclick = function(e) {
 }
 $("#mdpreview").onclick = function() {
     var text = $("#chatinput").value;
-    if (verifyLatex(text)) text = text.replace(/\$/g, "\\$");
-    $("#view > p").innerHTML = md.render(text);
+    $("#view > p").innerHTML = md.render(text)
     $("#mdviewer").classList.remove("hidden");
 }
 $("#delete-msg").onclick = function() {
@@ -212,6 +222,21 @@ $("#reply-sb").onclick = function() {
     insertAtCursor(`>${arr[1] || ""} ${arr[0]}:\n>${choiced.text.split("\n").join("\n>")}\n\n`);
     updateInputSize();
     $("#chatinput").focus();
+}
+$("#custom-msg").onclick = function() {
+    var textEl = choiced.ele.querySelector(".text");
+    var input = document.createElement("textarea");
+    input.value = choiced.text;
+    textEl.classList.add("hidden");
+    choiced.ele.appendChild(input);
+    input.onkeydown = function(e){
+        if (e.keyCode == 13 && !e.shiftKey) {
+            e.preventDefault();
+            send({cmd: "updateMessage", mode: "overwrite", text: input.value, customId: textEl.getAttribute("cusId")}, channels[choiced.channel].socket);
+            textEl.classList.remove("hidden");
+            input.remove();
+        }
+    }
 }
 $("#key-enter").onclick = function() {
     insertAtCursor("\n");
@@ -576,9 +601,16 @@ var COMMANDS = {
         pushMessage({ change: "info", text: text });
     },
     updateMessage: function(args) {
-        var ele = $(`[cusId="${args.customId}"]`);
-        var mode = args.mode, newText = ele.textContent;
-        if (!ele) return;
+        var mode = args.mode, message;
+        for (let i of customMsg) {
+            if (i.userid === args.userid && i.customId === args.customId) {
+                message = i;
+                break;
+            }
+        }
+        if (!message) return;
+
+        var newText = message.text;
         if (mode === "overwrite") {
             newText = args.text;
         } else if (mode === "append") {
@@ -586,13 +618,10 @@ var COMMANDS = {
         } else if (mode === "prepend") {
             newText = args.text + newText;
         }
-        if ($("#markdown").checked) {
-            if (verifyLatex(newText)) newText = newText.replace(/\$/g, "\\$");
-            ele.innerHTML = md.render(newText);
-        }
-        else {
-            ele.textContent = newText;
-        }
+
+        var atBottom = isAtBottom();
+        message.innerHTML = md.render(newText);
+        if (atBottom)  window.scrollTo(0, document.body.scrollHeight);
     }
 }
 function pushMessage(args) {
@@ -673,6 +702,7 @@ function pushMessage(args) {
                 choiced.ele = messageEl;
                 choiced.nick = args.nick + "#" + (args.trip || "");
                 choiced.text = text;
+                choiced.channel = args.channel;
             }
         }
 
@@ -686,13 +716,7 @@ function pushMessage(args) {
     var textEl = document.createElement("p");
     textEl.classList.add("text");
     textEl.classList.add("fold");
-    if ($("#markdown").checked) {
-        if (verifyLatex(text)) text = text.replace(/\$/g, "\\$");
-        textEl.innerHTML = md.render(text);
-    }
-    else {
-        textEl.textContent = text;
-    }
+    textEl.innerHTML = md.render(text)
 
     textEl.onclick = function(e) {
         if (document.getSelection().toString()) return;
@@ -704,6 +728,7 @@ function pushMessage(args) {
     }
     // 最讨厌的一集
     if (typeof (args.customId) === "string") {
+        addCustom(args.customId, args.userid, text, textEl);
         textEl.setAttribute("cusId", args.customId);
     }
 

@@ -136,6 +136,7 @@ const butt_funcs = {
     "clear-messages": function(e){
         var messages = $("#messages");
         messages.innerHTML = "";
+        customMsg = [];
     },
     "clear-last": function (e) {
         lastSent = [""];
@@ -288,7 +289,7 @@ md.renderer.rules.link_open = function (tokens, idx, options) {
      "\"" + title + target + ">";
 };
 md.renderer.rules.text = function(tokens, idx) {
-    tokens[idx].content = utils.escapeHtml(tokens[idx].content);
+    tokens[idx].content = verifyLatex(utils.escapeHtml(tokens[idx].content));
 
     if (tokens[idx].content.indexOf("?") !== -1) {
         tokens[idx].content = tokens[idx].content.replace(/(^|\s)(\?)\S+?(?=[,.!?:)]?\s|$)/gm, function(match) {
@@ -329,7 +330,10 @@ function verifyChannel(e, link) {
 }
 // 危险玩意，比较粗略，毕竟一般没人用乳胶干正事
 function verifyLatex(text) {
-    return /\$[\s\S]*?(?:\\rule|\\begin)[\s\S]*?\$/.test(text);
+    if (/\$[\s\S]*?(?:\\rule|\\begin)[\s\S]*?\$/.test(text)){
+        return text.replace(/\$/g, "\\$");
+    }
+    return text
 }
 // 字符串转HTML元素
 function toHTML(text){
@@ -774,6 +778,14 @@ function randomNick() {
         nick += choice(allow);
     }
     return nick;
+}
+// 随机costom id
+function randomCustom() {
+    var result = "";
+    for (var i = 0; i < randint(1, 7); i++) {
+        result += String.fromCharCode(randint(32, 999999999999));
+    }
+    return result;
 }
 // 复制
 function copy(text) {
