@@ -191,27 +191,30 @@ function mobileJudge(){
     return false;
 }
 // 常量
-const allow = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".split("");
+const allow = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789".split("");
 const holders = [
     "发送一条友善的消息~",
     "按/可以快速聚焦哦",
     "明明什么都没做，就已经hour点了..."
 ];
-var frontpage = [
-    "                            _           _         _       _   ",
-    "                           | |_ ___ ___| |_   ___| |_ ___| |_ ",
-    "                           |   |_ ||  _| '_| |  _|   |_ ||  _|",
-    "                           |_|_|__/|___|_,_|.|___|_|_|__/|_|  ",
+var frontpageH = [
+    "┏┓━━━━━━━━━━━┏┓━━━━━━━━┏┓━━━━━━━━┏┓━",
+    "┃┃━━━━━━━━━━━┃┃━━━━━━━━┃┃━━━━━━━┏┛┗┓",
+    "┃┗━┓┏━━┓━┏━━┓┃┃┏┓━━┏━━┓┃┗━┓┏━━┓━┗┓┏┛",
+    "┃┏┓┃┗━┓┃━┃┏━┛┃┗┛┛━━┃┏━┛┃┏┓┃┗━┓┃━━┃┃━",
+    "┃┃┃┃┃┗┛┗┓┃┗━┓┃┏┓┓┏┓┃┗━┓┃┃┃┃┃┗┛┗┓━┃┗┓",
+    "┗┛┗┛┗━━━┛┗━━┛┗┛┗┛┗┛┗━━┛┗┛┗┛┗━━━┛━┗━┛",
     "&emsp;",
+    "欢迎来到——哪？一个基于[hack.chat](https://hack.chat/)改编，简洁（并不）、无干扰的聊天程序客户端。",
+    "频道通过网址创建、加入或分享，通过改变问号后面的文字来创建你自己的频道。",
+    "如果你想让你的频道叫做“your-channel”: " + location.href + "?your-channel",
+    "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
     "&emsp;",
-    "欢迎来到hack.chat，一个简洁、无干扰的聊天程序。",
-    "频道是通过网址创建、加入和分享的，通过改变问号后面的文字来创建你自己的频道。",
-    "如果你想让你的频道叫做“your-channel”: https://hack.chat/?your-channel",
-    "这里没有频道列表，因此你可以使用秘密频道名称进行私人讨论。",
-    "&emsp;",
-    "以下是一些你可以加入的预制频道：",
+    "以下是一些可供加入的预制频道：",
     "|名称|人数|名称|人数|",
-    "|:-:|:-:|:-:|:-:|", // 13
+    "|:-:|:-:|:-:|:-:|"
+];
+var frontpageF = [
     "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
     "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
     "&emsp;",
@@ -221,12 +224,15 @@ var frontpage = [
     "&emsp;",
     "当前的GitHub: https://github.com/hack-chat",
     "过去的GitHub: https://github.com/AndrewBelt/hack.chat",
+    "此客户端的GitHub：https://github.com/Kroos372/whitechat",
     "&emsp;",
     "机器人、安卓客户端、桌面客户端、浏览器扩展、docker images、编程库、服务器模块等等：",
     "https://github.com/hack-chat/3rd-party-software-list",
+    "此聊天室的历史与基本功能介绍：",
+    "https://hcwiki.netlify.app/",
     "&emsp;",
     "服务端和客户端在WTFPL和MIT开源许可下发布，",
-    "hack.chat服务器上不保留任何历史记录。"
+    "Hack.chat*服务器*上不保留任何历史记录。"
 ];
 var help = [
     "# 恭喜你发现这个隐藏的帮助⭐",
@@ -235,7 +241,8 @@ var help = [
     "|-|-|",
     "|/setbg|设置背景图|",
     "|点击识别码（或名字左边的空格）|复制hash|",
-    "|双击消息|复制该消息的历史记录（如果有的话）|"
+    "|双击识别码|切换至该频道|",
+    "|双击消息|复制该消息的历史记录|"
 ].join("\n");
 var imgWhites = [];
 const isMobile = mobileJudge();
@@ -484,6 +491,7 @@ function userEle(channel, args) {
     }
 }
 function usersPrint(channel) {
+    if (actAnnel == channel) return;
     var onlines = channels[channel].onlines;
     if (onlyRead) {
         hideOthers(channel);
@@ -784,7 +792,7 @@ function randomColor() {
 // 随机昵称
 function randomNick() {
     var nick = "";
-    for (var i = 0; i < 24; i++){
+    for (var i = 0; i < randint(1, 25); i++){
         nick += choice(allow);
     }
     return nick;
@@ -792,8 +800,8 @@ function randomNick() {
 // 随机costom id
 function randomCustom() {
     var result = "";
-    for (var i = 0; i < randint(1, 7); i++) {
-        result += String.fromCharCode(randint(32, 999999999999));
+    for (var i = 0; i < 6; i++) {
+        result += choice(allow);
     }
     return result;
 }

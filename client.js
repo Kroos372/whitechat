@@ -311,7 +311,6 @@ $("#close-channel").onclick = function() {
 }
 $("#users-change").onchange = function(e) {
     var channel = e.target.value;
-    if (actAnnel == channel) return;
     usersPrint(channel);
 }
 $("#channel-color").onclick = function(e) {
@@ -631,6 +630,7 @@ var COMMANDS = {
         customHistory[customId].push(newText);
 
         var atBottom = isAtBottom();
+        message.text = newText;
         message.ele.innerHTML = md.render(verifyLatex(newText));
         message.ele.ondblclick = function() {
             copy(customHistory[customId].join("\n"));
@@ -639,11 +639,10 @@ var COMMANDS = {
     }
 }
 function pushMessage(args) {
-    var text = lastMsg = args.text;
+    var text = lastMsg = args.text, customId = args.customId;
     // 消息节点
     var messageEl = document.createElement("div");
     messageEl.classList.add("message");
-
     // 频道
     if (args.channel) {
         if (args.nick && isShielded(args.channel, args.nick)) return;
@@ -692,6 +691,12 @@ function pushMessage(args) {
         tripEl.title = args.hash;
         tripEl.onclick = function () {
             copy(args.hash);
+        };
+        tripEl.ondblclick = function() {
+            if (args.channel && channels[channel]) {
+                $("#users-change").value = channel;
+                usersPrint(channel);
+            }
         }
     }
     if (args.nick) {
@@ -718,8 +723,17 @@ function pushMessage(args) {
                 moveMenu(e, $("#msg-ctm"));
                 choiced.ele = messageEl;
                 choiced.nick = args.nick + "#" + (args.trip || "");
-                choiced.text = text;
                 choiced.channel = args.channel;
+                if (typeof (customId) === "string") {
+                    for (let i of customMsg) {
+                        if (i.customId === customId) {
+                            choiced.text = i.text;
+                            break;
+                        }
+                    }
+                } else {
+                    choiced.text = text;
+                }
             }
         }
 
@@ -733,7 +747,7 @@ function pushMessage(args) {
     var textEl = document.createElement("p");
     textEl.classList.add("text");
     textEl.classList.add("fold");
-    textEl.innerHTML = md.render(verifyLatex(text))
+    textEl.innerHTML = md.render(verifyLatex(text));
 
     textEl.onclick = function(e) {
         if (document.getSelection().toString()) return;
@@ -744,9 +758,9 @@ function pushMessage(args) {
         }
     }
     // 最讨厌的一集
-    if (typeof (args.customId) === "string") {
-        addCustom(args.customId, args.userid, text, textEl);
-        textEl.setAttribute("cusId", args.customId);
+    if (typeof (customId) === "string") {
+        addCustom(customId, args.userid, text, textEl);
+        textEl.setAttribute("cusId", customId);
     }
 
     messageEl.appendChild(textEl);
@@ -860,14 +874,15 @@ $("#chatinput").onkeydown = function(e) {
     e.stopPropagation();
 }
 updateInputSize();
-function mainpage() {
-    if (ws && ws.readyState == ws.OPEN) {
-        ws.send(JSON.stringify({ cmd: "session" }));
-    }
-}
+
 
 if (actAnnel == "") {
     var ws = new WebSocket("wss://hack.chat/chat-ws");
+    ws.onopen = function (){
+        if (ws && ws.readyState == ws.OPEN) {
+            ws.send(JSON.stringify({cmd: "session"}));
+        }
+    };
     ws.onmessage = function(message) {
         var result = JSON.parse(message.data);
         var rooms = result.public;
@@ -878,16 +893,15 @@ if (actAnnel == "") {
                 string += "| ?" + keys[i] + "|" + rooms[keys[i]];
                 if (i % 2) {
                     string += "|";
-                    frontpage.splice(14 + i / 2, 0, string);
+                    frontpageH.push(string);
                     string = "";
                 }
             }
-            frontpage = frontpage.join("\n");
-            pushMessage({ text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
+            var frontpage = frontpageH.concat(frontpageF).join("\n");
+            pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
             $(".text").classList.remove("fold");
         }
     }
-    ws.onopen = mainpage;
 } else {
     var nick = location.hash.slice(1);
     join(actAnnel, nick);
