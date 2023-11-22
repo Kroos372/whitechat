@@ -137,7 +137,7 @@ const butt_funcs = {
         var messages = $("#messages");
         messages.innerHTML = "";
         customMsg = [];
-        customHistory = {};
+        customHistory = new Map();
     },
     "clear-last": function (e) {
         lastSent = [""];
@@ -204,12 +204,12 @@ var frontpageH = [
     "┃┏┓┃┗━┓┃━┃┏━┛┃┗┛┛━━┃┏━┛┃┏┓┃┗━┓┃━━┃┃━",
     "┃┃┃┃┃┗┛┗┓┃┗━┓┃┏┓┓┏┓┃┗━┓┃┃┃┃┃┗┛┗┓━┃┗┓",
     "┗┛┗┛┗━━━┛┗━━┛┗┛┗┛┗┛┗━━┛┗┛┗┛┗━━━┛━┗━┛",
-    "&emsp;",
+    "---",
     "欢迎来到——哪？一个基于[hack.chat](https://hack.chat/)改编，简洁（并不）、无干扰的聊天程序客户端。",
     "频道通过网址创建、加入或分享，通过改变问号后面的文字来创建你自己的频道。",
     "如果你想让你的频道叫做“your-channel”: " + location.href + "?your-channel",
     "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
-    "&emsp;",
+    "---",
     "以下是一些可供加入的预制频道：",
     "|名称|人数|名称|人数|",
     "|:-:|:-:|:-:|:-:|"
@@ -217,20 +217,21 @@ var frontpageH = [
 var frontpageF = [
     "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
     "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
-    "&emsp;",
+    "", // SB Markdown
+    "---",
     "文本格式:",
     "在LaTeX语法两端用单个美元符号包围表示行内样式： \\$\\zeta(2) = \\pi^2/6\\$, 用两个美元符号包围表示区块样式： \\$\\$\\int_0^1 \\int_0^1 \\frac{1}{1-xy} dx dy = \\frac{\\pi^2}{6}\\$\\$",
     "如果需要语法高亮，将代码用这种以下格式包裹: \n\\`\\`\\`<语言> \n <代码>\n\\`\\`\\`\n 其中<语言>是任何一种已知的编程语言。",
-    "&emsp;",
+    "---",
     "当前的GitHub: https://github.com/hack-chat",
     "过去的GitHub: https://github.com/AndrewBelt/hack.chat",
     "此客户端的GitHub：https://github.com/Kroos372/whitechat",
-    "&emsp;",
+    "---",
     "机器人、安卓客户端、桌面客户端、浏览器扩展、docker images、编程库、服务器模块等等：",
     "https://github.com/hack-chat/3rd-party-software-list",
     "此聊天室的历史与基本功能介绍：",
     "https://hcwiki.netlify.app/",
-    "&emsp;",
+    "---",
     "服务端和客户端在WTFPL和MIT开源许可下发布，",
     "Hack.chat*服务器*上不保留任何历史记录。"
 ];
@@ -240,11 +241,18 @@ var help = [
     "|||",
     "|-|-|",
     "|/setbg|设置背景图|",
-    "|点击识别码（或名字左边的空格）|复制hash|",
+    "|/temp|设置消息模板，%m代表消息|",
+    "|右键识别码（或名字左边的空格）|复制hash|",
     "|双击识别码|切换至该频道|",
     "|双击消息|复制该消息的历史记录|"
 ].join("\n");
-var imgWhites = [];
+var imgWhites = [], z6 = parseInt("z".repeat(6), 36) + 1;
+const anwz = {
+    2: "nask",
+    0: "nblank",
+    1: "nchannel"
+};
+const WARN = "!", INFO = "*";
 const isMobile = mobileJudge();
 
 // Markdown所需
@@ -347,7 +355,7 @@ function verifyChannel(e, link) {
 }
 // 危险玩意，比较粗略，毕竟一般没人用乳胶干正事
 function verifyLatex(text) {
-    if (/\$[\s\S]*?(?:\\rule|\\begin)[\s\S]*?\$/.test(text)){
+    if (/\$[\s\S]*?(?:\\rule|\\begin|\\hspace)[\s\S]*?\$/.test(text)){
         return text.replace(/\$/g, "\\$");
     }
     return text
@@ -497,6 +505,7 @@ function usersPrint(channel) {
         hideOthers(channel);
         showMsg(channel);
     }
+    $("#chatinput").style.backgroundColor = channels[channel].color;
     actAnnel = channel;
     usersClear();
     channels[channel].nicks.forEach(function (nick) {
@@ -797,13 +806,9 @@ function randomNick() {
     }
     return nick;
 }
-// 随机costom id
+// 随机custom id，虽然有可能撞但几率有点逆天
 function randomCustom() {
-    var result = "";
-    for (var i = 0; i < 6; i++) {
-        result += choice(allow);
-    }
-    return result;
+    return randint(0, z6).toString(36).padStart(6, "0");
 }
 // 复制
 function copy(text) {

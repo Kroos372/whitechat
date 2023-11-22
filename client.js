@@ -5,12 +5,6 @@ var channels = {}, kchannel, Kcmd = [".m kick"], shieldWords = [];
 var lastMsg, shouldConnect, mults = {}, multf = false;
 var copyTemplate = localStorageGet("copy-template") || "?$c$: $t$ $n$\n$m$\n";
 var msgTemplate = localStorageGet("msg-template");
-const anwz = {
-    2: "nask",
-    0: "nblank",
-    1: "nchannel"
-};
-const WARN = "!", INFO = "*";
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
     "/k ": function(msg) {
@@ -137,7 +131,7 @@ const KEYS = {
         }
     }
 }
-var customMsg = [], customHistory = {};
+var customMsg = [], customHistory = new Map();
 function addCustom(customId, userid, text, ele) {
     customMsg.push({
         customId,
@@ -163,7 +157,9 @@ function sendMsg(msg, trace = true, ws) {
     }
     if (msgTemplate && !msg.startsWith("/")) msg = msgTemplate.replaceAll("%m", msg);
 
-    if ($("#allCustom")) send({cmd: "chat", text: msg, customId: randomCustom()}, ws);
+    if ($("#allCustom")){
+        send({cmd: "chat", text: msg, customId: randomCustom()}, ws);
+    } 
     else send({cmd: "chat", text: msg}, ws);
     
     if (trace) {
@@ -227,8 +223,13 @@ $("#custom-msg").onclick = function() {
     var input = document.createElement("textarea");
     input.value = choiced.text;
     textEl.classList.add("hidden");
+    var atBottom = isAtBottom();
     choiced.ele.appendChild(input);
     input.focus();
+    if (atBottom) {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
     input.onkeydown = function(e){
         if (e.keyCode == 13 && !e.shiftKey) {
             e.preventDefault();
@@ -418,12 +419,13 @@ function rejoin(channel, nick) {
     $("#users-change").value = nhannel;
     join(channel, nick, color);
 }
-function initChannel(channel, ws, color = null) {
+function initChannel(channel, ws, color=null) {
     var option = document.createElement("option");
     option.textContent = channel;
     option.value = channel;
     $("#users-change").appendChild(option);
     $("#users-change").value = channel;
+    $("#chatinput").style.backgroundColor = color;
     return channels[channel] = {
         socket: ws,
         onlines: {},
@@ -619,7 +621,7 @@ var COMMANDS = {
         if (!message) return;
 
         var newText = message.text;
-        if (!customHistory[customId]) customHistory[customId] = [newText];
+        if (!customHistory.get(customId)) customHistory.set(customId, [newText]);
         if (mode === "overwrite") {
             newText = args.text;
         } else if (mode === "append") {
@@ -627,13 +629,13 @@ var COMMANDS = {
         } else if (mode === "prepend") {
             newText = args.text + newText;
         }
-        customHistory[customId].push(newText);
+        customHistory.get(customId).push(newText);
 
         var atBottom = isAtBottom();
         message.text = newText;
         message.ele.innerHTML = md.render(verifyLatex(newText));
         message.ele.ondblclick = function() {
-            copy(customHistory[customId].join("\n"));
+            copy(customHistory.get(customId).join("\n"));
         }
         if (atBottom) window.scrollTo(0, document.body.scrollHeight);
     }
@@ -689,8 +691,9 @@ function pushMessage(args) {
             nickSpanEl.appendChild(tripEl);
         }
         tripEl.title = args.hash;
-        tripEl.onclick = function () {
+        tripEl.oncontextmenu = function(e) {
             copy(args.hash);
+            e.preventDefault();
         };
         tripEl.ondblclick = function() {
             if (args.channel && channels[channel]) {
