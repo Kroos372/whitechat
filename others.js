@@ -134,10 +134,25 @@ const buttons = {
 };
 const butt_funcs = {
     "clear-messages": function(e){
-        var messages = $("#messages");
-        messages.innerHTML = "";
-        customMsg = [];
-        customHistory = new Map();
+        if (!onlyRead){
+            var messages = $("#messages");
+            messages.innerHTML = "";
+            customMsg = [];
+            customHistory = new Map();
+        } else {
+            var all = $("#messages > .message", true);
+            all.forEach(function(ele) {
+                if (ele.classList.contains("c-" + actAnnel)) {
+                    ele.remove();
+                }
+            });
+            customMsg.forEach(function(args, index) {
+                if (args.channel != actAnnel) {
+                    customMsg.splice(index, 1);
+                    customHistory.delete(args.customId);
+                }
+            });
+        }
     },
     "clear-last": function (e) {
         lastSent = [""];
@@ -162,22 +177,6 @@ Object.keys(buttons).forEach(function (button) {
     option.value = button;
     $("#bar-ttons").appendChild(option);
 });
-$("#button").onclick = function (e) {
-    butt_funcs[$("#bar-ttons").value]();
-}
-$("#bar-ttons").onchange = function(e) {
-    if (e.target.value == "change-color") {
-        $("#picker").classList.remove("hidden");
-        $("#picker").style.backgroundColor = $("#colorPicker").value;
-    }
-    else {
-        $("#picker").classList.add("hidden");
-    }
-    $("#button").innerHTML = buttons[e.target.value];
-}
-$("#colorPicker").oninput = function (e) {
-    $("#picker").style.backgroundColor = e.target.value;
-}
 $("#bar-ttons").value = "clear-messages";
 
 // 是否是手机
@@ -196,44 +195,6 @@ const holders = [
     "发送一条友善的消息~",
     "按/可以快速聚焦哦",
     "明明什么都没做，就已经hour点了..."
-];
-var frontpageH = [
-    "┏┓━━━━━━━━━━━┏┓━━━━━━━━┏┓━━━━━━━━┏┓━",
-    "┃┃━━━━━━━━━━━┃┃━━━━━━━━┃┃━━━━━━━┏┛┗┓",
-    "┃┗━┓┏━━┓━┏━━┓┃┃┏┓━━┏━━┓┃┗━┓┏━━┓━┗┓┏┛",
-    "┃┏┓┃┗━┓┃━┃┏━┛┃┗┛┛━━┃┏━┛┃┏┓┃┗━┓┃━━┃┃━",
-    "┃┃┃┃┃┗┛┗┓┃┗━┓┃┏┓┓┏┓┃┗━┓┃┃┃┃┃┗┛┗┓━┃┗┓",
-    "┗┛┗┛┗━━━┛┗━━┛┗┛┗┛┗┛┗━━┛┗┛┗┛┗━━━┛━┗━┛",
-    "---",
-    "欢迎来到——哪？一个基于[hack.chat](https://hack.chat/)改编，简洁（并不）、无干扰的聊天程序客户端。",
-    "频道通过网址创建、加入或分享，通过改变问号后面的文字来创建你自己的频道。",
-    "如果你想让你的频道叫做“your-channel”: " + location.href + "?your-channel",
-    "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
-    "---",
-    "以下是一些可供加入的预制频道：",
-    "|名称|人数|名称|人数|",
-    "|:-:|:-:|:-:|:-:|"
-];
-var frontpageF = [
-    "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
-    "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
-    "", // SB Markdown
-    "---",
-    "文本格式:",
-    "在LaTeX语法两端用单个美元符号包围表示行内样式： \\$\\zeta(2) = \\pi^2/6\\$, 用两个美元符号包围表示区块样式： \\$\\$\\int_0^1 \\int_0^1 \\frac{1}{1-xy} dx dy = \\frac{\\pi^2}{6}\\$\\$",
-    "如果需要语法高亮，将代码用这种以下格式包裹: \n\\`\\`\\`<语言> \n <代码>\n\\`\\`\\`\n 其中<语言>是任何一种已知的编程语言。",
-    "---",
-    "当前的GitHub: https://github.com/hack-chat",
-    "过去的GitHub: https://github.com/AndrewBelt/hack.chat",
-    "此客户端的GitHub：https://github.com/Kroos372/whitechat",
-    "---",
-    "机器人、安卓客户端、桌面客户端、浏览器扩展、docker images、编程库、服务器模块等等：",
-    "https://github.com/hack-chat/3rd-party-software-list",
-    "此聊天室的历史与基本功能介绍：",
-    "https://hcwiki.netlify.app/",
-    "---",
-    "服务端和客户端在WTFPL和MIT开源许可下发布，",
-    "Hack.chat*服务器*上不保留任何历史记录。"
 ];
 var help = [
     "# 恭喜你发现这个隐藏的帮助⭐",
@@ -431,25 +392,6 @@ if (Number(localStorageGet("last-max"))) {
     lastMax = $("#last-max").value = Number(localStorageGet("last-max"));
 }
 
-$("#pin-sidebar").onchange = function (e) {
-    localStorageSet("pin-sidebar", e.target.checked);
-}
-
-$("#joined-left").onchange = function (e) {
-    localStorageSet("joined-left", e.target.checked);
-}
-
-$("#parse-latex").onchange = function (e) {
-    var enabled = e.target.checked;
-    localStorageSet("parse-latex", enabled);
-    if (enabled) {
-        md.inline.ruler.enable([ "katex" ]);
-        md.block.ruler.enable([ "katex" ]);
-    } else {
-        md.inline.ruler.disable([ "katex" ]);
-        md.block.ruler.disable([ "katex" ]);
-    }
-}
 function usersClear() {
     var users = $("#users");
     while (users.firstChild) {
@@ -559,7 +501,7 @@ function updateTitle() {
     document.title = title;
 }
 function hideOthers(channel) {
-    var all = $(".message", true);
+    var all = $("#messages > .message", true);
     all.forEach(function(ele) {
         if (!ele.classList.contains("c-" + channel)) {
             ele.classList.add("hidden");
@@ -567,7 +509,7 @@ function hideOthers(channel) {
     });
 }
 function showMsg(channel) {
-    var all = $(".messages > .hidden", true);
+    var all = $("#messages > .hidden", true);
     var atBottom = isAtBottom();
     all.forEach(function(ele) {
         if (ele.classList.contains("c-" + channel)) {
@@ -848,3 +790,41 @@ function lor(){
 lor();
 console.log(Date());
 $("#copy-temp").placeholder = `可选参数：$c$: 频道, $n$: 昵称, $t$: 识别码, $h$: hash, $m$: 消息。\n默认：\n?$c$: $t$ $n$\n$m$`;
+var frontpageH = [
+    "┏┓━━━━━━━━━━━┏┓━━━━━━━━┏┓━━━━━━━━┏┓━",
+    "┃┃━━━━━━━━━━━┃┃━━━━━━━━┃┃━━━━━━━┏┛┗┓",
+    "┃┗━┓┏━━┓━┏━━┓┃┃┏┓━━┏━━┓┃┗━┓┏━━┓━┗┓┏┛",
+    "┃┏┓┃┗━┓┃━┃┏━┛┃┗┛┛━━┃┏━┛┃┏┓┃┗━┓┃━━┃┃━",
+    "┃┃┃┃┃┗┛┗┓┃┗━┓┃┏┓┓┏┓┃┗━┓┃┃┃┃┃┗┛┗┓━┃┗┓",
+    "┗┛┗┛┗━━━┛┗━━┛┗┛┗┛┗┛┗━━┛┗┛┗┛┗━━━┛━┗━┛",
+    "---",
+    "欢迎来到——哪？一个基于[hack.chat](https://hack.chat/)改编，简洁（并不）、无干扰的聊天程序客户端。",
+    "频道通过网址创建、加入或分享，通过改变问号后面的文字来创建你自己的频道。",
+    "如果你想让你的频道叫做“your-channel”: " + location.href + "?your-channel",
+    "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
+    "---",
+    "以下是一些可供加入的预制频道：",
+    "|名称|人数|名称|人数|",
+    "|:-:|:-:|:-:|:-:|"
+];
+var frontpageF = [
+    "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
+    "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
+    "", // SB Markdown
+    "---",
+    "文本格式:",
+    "在LaTeX语法两端用单个美元符号包围表示行内样式： \\$\\zeta(2) = \\pi^2/6\\$, 用两个美元符号包围表示区块样式： \\$\\$\\int_0^1 \\int_0^1 \\frac{1}{1-xy} dx dy = \\frac{\\pi^2}{6}\\$\\$",
+    "如果需要语法高亮，将代码用这种以下格式包裹: \n\\`\\`\\`<语言> \n <代码>\n\\`\\`\\`\n 其中<语言>是任何一种已知的编程语言。",
+    "---",
+    "当前的GitHub: https://github.com/hack-chat",
+    "过去的GitHub: https://github.com/AndrewBelt/hack.chat",
+    "此客户端的GitHub：https://github.com/Kroos372/whitechat",
+    "---",
+    "机器人、安卓客户端、桌面客户端、浏览器扩展、docker images、编程库、服务器模块等等：",
+    "https://github.com/hack-chat/3rd-party-software-list",
+    "此聊天室的历史与基本功能介绍：",
+    "https://hcwiki.netlify.app/",
+    "---",
+    "服务端和客户端在WTFPL和MIT开源许可下发布，",
+    "Hack.chat*服务器*上不保留任何历史记录。"
+];

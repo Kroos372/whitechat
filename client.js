@@ -132,12 +132,13 @@ const KEYS = {
     }
 }
 var customMsg = [], customHistory = new Map();
-function addCustom(customId, userid, text, ele) {
+function addCustom(customId, userid, text, ele, channel) {
     customMsg.push({
         customId,
         userid,
         text,
         ele,
+        channel
     });
 }
 // 发送消息&消息预处理
@@ -171,232 +172,6 @@ function sendMsg(msg, trace = true, ws) {
 // 红叉
 function closePage(ele) {
     ele.parentElement.classList.add("hidden");
-}
-$("#image").onchange = function(e) {
-    localStorage.allowImages = allowImages = e.target.checked;
-}
-$("#imgToggle").onchange = function(e) {
-    localStorage.toggle = toggle = e.target.checked;
-}
-$("#sound-notify").onchange = function(e) {
-    localStorage["sound-notify"] = e.target.checked;
-}
-$("#auto-scroll").onchange = function(e) {
-    localStorage["auto-scroll"] = autoScroll = e.target.checked;
-}
-$("#atsb").onclick = function() {
-    insertAtCursor("@" + choiced.nick + " ");
-}
-$("#ignore").onclick = function(e) {
-    var achannel = channels[actAnnel], val = $("#ig-selector").value;
-    var shielded = achannel.shielded[val];
-    var name = achannel.onlines[choiced.nick][val];
-
-    var index = shielded.indexOf(name);
-    if (index == -1) {
-        shielded.push(name);
-        pushMessage({ text: "已成功屏蔽他的信息！", change: "info" });
-    } else {
-        shielded.splice(index, 1);
-        pushMessage({ text: "已成功==取消==屏蔽他的信息！", change: "info" });
-    }
-}
-$("#ig-selector").onclick = function(e) {
-    e.stopPropagation();
-}
-$("#mdpreview").onclick = function() {
-    var text = $("#chatinput").value;
-    $("#view > p").innerHTML = md.render(verifyLatex(text));
-    $("#mdviewer").classList.remove("hidden");
-}
-$("#delete-msg").onclick = function() {
-    choiced.ele.remove();
-}
-$("#reply-sb").onclick = function() {
-    var arr = choiced.nick.split("#");
-    insertAtCursor(`>${arr[1] || ""} ${arr[0]}:\n>${choiced.text.split("\n").join("\n>")}\n\n`);
-    updateInputSize();
-    $("#chatinput").focus();
-}
-$("#custom-msg").onclick = function() {
-    var textEl = choiced.ele.querySelector(".text");
-    var input = document.createElement("textarea");
-    input.value = choiced.text;
-    textEl.classList.add("hidden");
-    var atBottom = isAtBottom();
-    choiced.ele.appendChild(input);
-    input.focus();
-    if (atBottom) {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    input.onkeydown = function(e){
-        if (e.keyCode == 13 && !e.shiftKey) {
-            e.preventDefault();
-            try {
-                send({cmd: "updateMessage", mode: "overwrite", text: input.value, customId: textEl.getAttribute("cusId")}, channels[choiced.channel].socket);
-            } catch(err) { }
-            textEl.classList.remove("hidden");
-            input.remove();
-        } else if (e.keyCode == 27) {
-            textEl.classList.remove("hidden");
-            input.remove();
-        } else if (e.keyCode == 191) {
-            e.stopPropagation();
-        }
-    }
-}
-$("#key-enter").onclick = function() {
-    insertAtCursor("\n");
-}
-$("#key-up").onclick = function() {
-    KEYS.up(false);
-    $("#chatinput").focus();
-}
-$("#key-down").onclick = function() {
-    KEYS.down(false);
-    $("#chatinput").focus();
-}
-$("#more-opt").onclick = function() {
-    $("#moptions").classList.remove("hidden");
-    if (localStorageGet("copy-template")) {
-        $("#copy-temp").value = copyTemplate;
-    }
-}
-$("#clink").onchange = function() {
-    var val = Number($("[name='clink']:checked").value);
-    localStorage["channel-link"] = cLink = val;
-}
-var newJoin = $("#join-channel").onclick = function() {
-    $("#new-input").classList.remove("hidden");
-    $("#new-nick").value = channels[actAnnel].fullnick;
-    $("#new-color").value = channels[actAnnel].color;
-    $("#no-color").checked = false;
-}
-$("#rjoin").onclick = function() {
-    var channel = $("#new-channelname").value;
-    var nick = $("#new-nick").value;
-    var color = $("#new-color").value;
-    if ($("#no-color").checked) {
-        color = null;
-    }
-    if (!channel) {
-        pushMessage({ text: "频道不正确！", change: "warn" });
-    }
-    else if (channels[channel]) {
-        pushMessage({ text: "不能两次加入同一个频道！", change: "warn" })
-    }
-    else {
-        join(channel, nick, color);
-        $("#new-input").classList.add("hidden");
-    }
-}
-$("#close-channel").onclick = function() {
-    if (Object.keys(channels).length < 2) {
-        pushMessage({ text: "至少要保留一个频道！", change: "warn" });
-    }
-    else {
-        var ws = channels[actAnnel].socket;
-        if (ws.readyState != ws.CLOSED) {
-            ws.onclose = null;
-            ws.close();
-        }
-        pushMessage({ text: "已退出 ?" + actAnnel, change: "info", channel: actAnnel });
-        delete channels[actAnnel];
-
-        var channel = Object.keys(channels)[0];
-        $(`#users-change > option[value="${actAnnel}"]`).remove();
-        $("#users-change").value = channel;
-        usersPrint(channel);
-    }
-}
-$("#users-change").onchange = function(e) {
-    var channel = e.target.value;
-    usersPrint(channel);
-}
-$("#channel-color").onclick = function(e) {
-    $("#bgcPicker").value = channels[actAnnel].color;
-    $("#bgcPicker").click();
-}
-$("#bgcPicker").onchange = function(e) {
-    channels[actAnnel].color = e.target.value;
-}
-$("#msg-cancel").onclick = function(e) {
-    $("#mult-oper").classList.remove("cflex");
-    $("#mult-oper").classList.add("hidden");
-    $("#mbuttons").classList.remove("hidden");
-    $("#mbuttons").classList.add("flex");
-    var msgs = Object.values(mults);
-    for (var [i, v] of msgs) {
-        i.classList.remove("mult");
-    }
-    mults = {};
-    multf = false;
-}
-$("#msg-delete").onclick = function(e) {
-    var msgs = Object.values(mults);
-    for (var [i, v] of msgs) {
-        i.remove();
-    }
-    mults = {};
-}
-$("#msg-copy").onclick = function(e) {
-    var msgs = Object.values(mults);
-    var text = "";
-    for (var [i, v] of msgs) {
-        var txt = copyTemplate.replace("$c$", v.channel || "").replace("$n$", v.nick).replace("$m$", v.text);
-        text += txt.replace("$h$", v.hash || "").replace("$t$", v.trip || "") + "\n";
-    }
-    copy(text);
-}
-$("#mult-select").onclick = function(e) {
-    $("#mult-oper").classList.add("cflex");
-    $("#mult-oper").classList.remove("hidden");
-    $("#mbuttons").classList.add("hidden");
-    $("#mbuttons").classList.remove("flex");
-    multf = true;
-    choiced.ele.querySelector("a").click();
-}
-$("#temp-set").onclick = function(e) {
-    var val = $("#copy-temp").value;
-    if (val) {
-        copyTemplate = localStorage["copy-template"] = val;
-    } else {
-        copyTemplate = "?$c$: $t$ $n$\n$m$\n";
-        localStorage.removeItem("copy-template");
-    }
-}
-$("#only-now").onclick = function(e) {
-    onlyRead = !onlyRead;
-    var atBottom = isAtBottom();
-    if (onlyRead) {
-        hideOthers(actAnnel);
-        e.target.textContent = "显示所有消息";
-    } else {
-        var hiddens = $(".messages > .hidden", true);
-        hiddens.forEach(function(ele) {
-            ele.classList.remove("hidden");
-        });
-        e.target.textContent = "只看此频道";
-    }
-    if (atBottom) {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-}
-$("#last-max").onchange = function(e) {
-    localStorage["last-max"] = lastMax = Number(e.target.value);
-}
-$("#new-msg > a").onclick = function(e) {
-    window.scrollTo(0, document.body.scrollHeight);
-    updateTitle();
-}
-$("#zwichk").onclick = function(e) {
-    var cnl = channels[actAnnel];
-    whisper(cnl.myNick, "i:check", false);
-}
-$("#del-color").onclick = function(e) {
-    channels[actAnnel].color = null;
-    pushMessage({ text: "删除当前频道标识色成功！", change: "info" });
 }
 
 var lastSent = [""], lastSentPos = 0;
@@ -486,7 +261,9 @@ function join(channel, nick, color = null) {
 var COMMANDS = {
     chat: function(args) {
         var nick = args.nick, text = args.text, channel = args.channel;
-        args.hash = channels[channel].onlines[nick].hash;
+        try {
+            args.hash = channels[channel].onlines[nick].hash;
+        } catch (err) { }
 
         pushMessage(args);
 
@@ -613,7 +390,7 @@ var COMMANDS = {
     updateMessage: function(args) {
         var mode = args.mode, customId = args.customId, message;
         for (let i of customMsg) {
-            if (i.userid === args.userid && i.customId === customId) {
+            if (i.userid === args.userid && i.customId === customId && i.channel == args.channel) {
                 message = i;
                 break;
             }
@@ -663,16 +440,15 @@ function pushMessage(args) {
         if (args.change == "info") {
             messageEl.classList.add("info");
             args.nick = INFO;
-        }
-        else if (args.change == "warn") {
+        } else if (args.change == "warn") {
             messageEl.classList.add("warn");
             args.nick = WARN;
         }
     }
-    // 昵称
     var nickSpanEl = document.createElement("span");
     nickSpanEl.classList.add("nick");
     messageEl.appendChild(nickSpanEl);
+    // 识别码
     if (args.trip) {
         var tripEl = document.createElement("span");
         if (args.uType == "mod") {
@@ -683,6 +459,7 @@ function pushMessage(args) {
         tripEl.classList.add("trip");
         nickSpanEl.appendChild(tripEl);
     }
+    // hash
     if (args.hash) {
         if (!args.trip) {
             var tripEl = document.createElement("span");
@@ -702,6 +479,7 @@ function pushMessage(args) {
             }
         }
     }
+    // 昵称
     if (args.nick) {
         var nickLinkEl = document.createElement("a");
         var mtime = Date.now();
@@ -762,7 +540,7 @@ function pushMessage(args) {
     }
     // 最讨厌的一集
     if (typeof (customId) === "string") {
-        addCustom(customId, args.userid, text, textEl);
+        addCustom(customId, args.userid, text, textEl, channel);
         textEl.setAttribute("cusId", customId);
     }
 
@@ -877,7 +655,6 @@ $("#chatinput").onkeydown = function(e) {
     e.stopPropagation();
 }
 updateInputSize();
-
 
 if (actAnnel == "") {
     var ws = new WebSocket("wss://hack.chat/chat-ws");
