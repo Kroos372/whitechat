@@ -343,10 +343,10 @@ function linkToggle(e){
     var ele = e.target;
     var img = toHTML('<img oncontextmenu="imageToggle(event)" referrerpolicy="no-referrer">');
     img.alt = ele.getAttribute("alt") || "一张图片";
-    try{
-        img.src = ele.firstChild.textContent;
+    try {
+        img.src = ele.href;
     } catch (err) {
-        pushMessage({text: "暂时无法加载图片，请稍后重试！", hash: "Qm9jY2hpQ2hhbg", change: "info"});
+        pushMessage({text: "暂时无法加载图片，请稍后重试！", hash: "Qm9jY2hpQ2hhbg", change: "warn"});
         return;
     }
     if (isAtBottom()){
@@ -354,7 +354,7 @@ function linkToggle(e){
             window.scrollTo(0, document.body.scrollHeight);
         }
     }
-    ele.firstChild.remove();
+    ele.textContent = "";
     ele.appendChild(img);
 }
 // 设置颜色
@@ -483,7 +483,7 @@ function updateTitle() {
         unread = 0; ated = false; lastMsg = null;
         $("#new-msg").classList.add("hidden");
     }
-    var title = actAnnel ? "?" + actAnnel : "Hack.Chat";
+    var title = actAnnel ? "?" + decodeURI(actAnnel) : "Hack.Chat";
 
     if (unread > 0) {
         title = `(${unread})` + title;
@@ -689,7 +689,8 @@ function changeColor(color, ws) {
 }
 // 是否被@
 function verifyAted(channel, msg) {
-    return channel && RegExp("@" + channels[channel].myNick + "\\b").test(msg);
+    var cnl = channels[channel];
+    return cnl && RegExp("@" + cnl.myNick + "\\b").test(msg);
 }
 // 是否是数字
 function verifyNum(num){

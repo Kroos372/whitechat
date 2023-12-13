@@ -189,14 +189,20 @@ $("#zwichk").onclick = function(e) {
 }
 $("#funfun").onclick = function(e) {
     let cnl = channels[actAnnel];
-    pushMessage({
-        channel: actAnnel,
-        trip: "rrrRRR",
-        uType: "mod",
-        nick: cnl ? cnl.myNick : "R",
-        text: $("#chatinput").value
-    })
+    let args = {text: $("#chatinput").value, channel: actAnnel};
+    if (cnl) {
+        args = Object.assign(args, cnl.onlines[cnl.myNick]);
+    } else {
+        args.trip = "rrrRRR";
+        args.uType = "mod";
+        args.nick = "R";
+        args.hash = "S2ltaU5pQXNhR2FGdXJ1";
+        args.color = "#0cf";
+    }
+    pushMessage(args);
     $("#chatinput").value = "";
+    updateInputSize();
+    $("#chatinput").focus();
 }
 // 传统右键菜单
 $("#mult-select").onclick = function(e) {

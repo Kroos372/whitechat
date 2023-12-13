@@ -8,7 +8,7 @@ var msgTemplate = localStorageGet("msg-template");
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
     "/k ": function(msg) {
-        whisper(namePure(msg.slice(3)), "$\\begin{pmatrix}qaq\\\\[999999999em]\\end{pmatrix}$");
+        whisper(namePure(msg.slice(3)), "$\\begin{pmatrix}qaq\\\\[29471285em]\\end{pmatrix}$");
         return true;
     },
     "/zw ": function(msg) {
@@ -158,7 +158,7 @@ function sendMsg(msg, trace = true, ws) {
     }
     if (msgTemplate && !msg.startsWith("/")) msg = msgTemplate.replaceAll("%m", msg);
 
-    if ($("#allCustom")){
+    if ($("#allCustom").checked){
         send({cmd: "chat", text: msg, customId: randomCustom()}, ws);
     } 
     else send({cmd: "chat", text: msg}, ws);
@@ -173,13 +173,12 @@ function sendMsg(msg, trace = true, ws) {
 function closePage(ele) {
     ele.parentElement.classList.add("hidden");
 }
-
 var lastSent = [""], lastSentPos = 0;
 var choiced = {}, atCont = {};
 var unread = 0, ated = false, onlyRead = false;
 var cLink = localStorageGet("channel-link") || 2;
 $(`#${anwz[cLink]}`).checked = true;
-var found = { index: 0, nicks: [] };
+var found = {index: 0, nicks: []};
 
 function rejoin(channel, nick) {
     var ws = channels[channel].socket;
@@ -217,7 +216,6 @@ function initChannel(channel, ws, color=null) {
 function join(channel, nick, color = null) {
     var wasConnected = false;
     var ws = new WebSocket("wss://hack.chat/chat-ws");
-
     var nowAnnel = initChannel(channel, ws, color);
     actAnnel = channel;
 
@@ -281,12 +279,13 @@ var COMMANDS = {
         if (args.type == "whisper") {
             if (args.from === args.to || isShielded(args.channel, args.from)) return;
             else if (args.text.split(": ")[1] == "i:check") {
-                if (args.channel != (kchannel || actAnnel)) {
-                    pushMessage({ change: "warn", text: `非预期的频道 ?${args.channel} , 您可能被踢出了( ⊙ o ⊙ )正在重连……` });
+                kchannel = kchannel || actAnnel;
+                if (args.channel != kchannel) {
+                    pushMessage({change: "warn", text: `非预期的频道 ?${args.channel} , 您可能被踢出了( ⊙ o ⊙ )正在重连……`, channel: kchannel});
                     channel.kicked = true;
                     ws.close();
                 } else {
-                    pushMessage({ change: "info", text: `您仍然在 ?${args.channel} 中，请不用担心(‾◡◝)`, channel: kchannel });
+                    pushMessage({change: "info", text: `您仍然在 ?${args.channel} 中，请不用担心(‾◡◝)`, channel: kchannel});
                 }
                 kchannel = null;
                 return;
@@ -307,18 +306,15 @@ var COMMANDS = {
         pushMessage(args);
     },
     onlineSet: function(args) {
-        var nicks = args.nicks, channel = args.channel;
-        var trip, hash, user;
+        var channel = args.channel, me = {};
         usersClear();
-        for (var i = 0; i < nicks.length; i++) {
-            user = args.users[i];
+        for (let user of args.users) {
             userAdd(channel, user);
             if (user.isme) {
-                trip = user.trip;
-                hash = user.hash;
+                me = user;
             }
         }
-        pushMessage({ change: "info", text: "在线的人有: " + nicks.join(", "), trip: trip, hash: hash, channel: channel });
+        pushMessage(Object.assign({change: "info", text: "在线的人有: " + args.nicks.join(", ")}, me));
     },
     onlineAdd: function(args) {
         var nick = args.nick;
@@ -424,8 +420,12 @@ function pushMessage(args) {
     messageEl.classList.add("message");
     // 频道
     if (args.channel) {
-        if (args.nick && isShielded(args.channel, args.nick)) return;
         var channel = args.channel;
+        if (!channels[channel]) {
+            pushMessage({change: "warn", text: `非预期的频道 ?${channel} , 您可能被踢出，请重连`});
+            return;
+        }
+        if (args.nick && isShielded(args.channel, args.nick)) return;
         var color = channels[channel].color;
         if (color) {
             messageEl.style.backgroundColor = color;
@@ -522,7 +522,6 @@ function pushMessage(args) {
         nickLinkEl.title = date.toLocaleString();
         nickSpanEl.appendChild(nickLinkEl);
     }
-
     // 文本
     if (wordShielded(text)) return;
     var textEl = document.createElement("p");
@@ -543,7 +542,6 @@ function pushMessage(args) {
         addCustom(customId, args.userid, text, textEl, channel);
         textEl.setAttribute("cusId", customId);
     }
-
     messageEl.appendChild(textEl);
 
     // 滚动到底部
