@@ -26,9 +26,6 @@ $("#image").onchange = function(e) {
 $("#imgToggle").onchange = function(e) {
     localStorage.toggle = toggle = e.target.checked;
 }
-$("#auto-scroll").onchange = function(e) {
-    localStorage["auto-scroll"] = autoScroll = e.target.checked;
-}
 // 一些不优雅的按键
 $("#bar-ttons").onchange = function(e) {
     if (e.target.value == "change-color") {
@@ -215,7 +212,20 @@ $("#mult-select").onclick = function(e) {
 }
 $("#reply-sb").onclick = function() {
     var arr = choiced.nick.split("#");
-    insertAtCursor(`>${arr[1] || ""} ${arr[0]}:\n>${choiced.text.split("\n").join("\n>")}\n\n`);
+    var text = choiced.text, shorted;
+    if (text.length > 512){
+        text = text.slice(0, 512);
+        shorted = true;
+    }
+    var rtext = text.split("\n");
+    if (rtext.length > 8){
+        rtext.splice(8);
+        shorted = true;
+    }
+    if (shorted) {
+        rtext.push("...");
+    }
+    insertAtCursor(`>${arr[1] || ""} ${arr[0]}:\n>${rtext.join("\n>")}\n\n`);
     updateInputSize();
     $("#chatinput").focus();
 }

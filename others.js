@@ -249,7 +249,7 @@ var markdownOptions = {
     }
 };
 var md = new Remarkable("full", markdownOptions);
-var allowImages = true, toggle = false, autoScroll = true;
+var allowImages = true, toggle = true;
 var utils = Remarkable.utils;
 
 md.renderer.rules.image = function (tokens, idx, options) {
@@ -379,14 +379,11 @@ if (localStorageGet("parse-latex") == "true") {
     md.inline.ruler.enable([ "katex" ]);
     md.block.ruler.enable([ "katex" ]);
 }
-if (localStorageGet("toggle") == "true") {
-    toggle = $("#imgToggle").checked = true;
+if (localStorageGet("toggle") == "false") {
+    toggle = $("#imgToggle").checked = false;
 }
 if (localStorageGet("sound-notify") == "true") {
     $("#sound-notify").checked = true;
-}
-if (localStorageGet("auto-scroll") == "false") {
-    $("#auto-scroll").checked = autoScroll = false;
 }
 if (Number(localStorageGet("last-max"))) {
     lastMax = $("#last-max").value = Number(localStorageGet("last-max"));
@@ -409,7 +406,9 @@ function userEle(channel, args) {
         var tripEl = document.createElement("span");
         tripEl.classList.add("trip");
         tripEl.textContent = " " + args.trip;
-        if (args.uType == "mod"){
+        if (args.uType == "admin"){
+            tripEl.textContent = " " + String.fromCharCode(10024) + tripEl.textContent;
+        } else if (args.uType == "mod"){
             tripEl.textContent = " " + String.fromCharCode(11088) + tripEl.textContent;
         }
         userLi.appendChild(tripEl);
@@ -827,5 +826,9 @@ var frontpageF = [
     "https://hcwiki.netlify.app/",
     "---",
     "服务端和客户端在WTFPL和MIT开源许可下发布，",
-    "Hack.chat*服务器*上不保留任何历史记录。"
+    "Hack.chat*服务器*上不保留任何历史记录。",
+    "---",
+    "特别感谢:",
+    "[hc++](https://hach.chat), dpg客户端(好像挂了), 还有你",
+    "\\>w<"
 ];

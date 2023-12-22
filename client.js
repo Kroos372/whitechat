@@ -100,6 +100,10 @@ const CMDS = {
         if (!msg.slice(6)) {
             pushMessage({trip: "coBad2", text: help, change: "info"});
         }
+    },
+    "/send": function(msg) {
+        channels[actAnnel].socket.send(msg.slice(6));
+        return true;
     }
 }
 const CMDKEYS = Object.keys(CMDS);
@@ -451,7 +455,9 @@ function pushMessage(args) {
     // 识别码
     if (args.trip) {
         var tripEl = document.createElement("span");
-        if (args.uType == "mod") {
+        if (args.uType == "admin") {
+            tripEl.textContent = String.fromCharCode(10024) + " " + args.trip + " ";
+        } else if (args.uType == "mod") {
             tripEl.textContent = String.fromCharCode(11088) + " " + args.trip + " ";
         } else {
             tripEl.textContent = args.trip + " ";
@@ -547,7 +553,7 @@ function pushMessage(args) {
     // 滚动到底部
     var atBottom = isAtBottom();
     $("#messages").appendChild(messageEl);
-    if (atBottom || autoScroll) {
+    if (atBottom) {
         window.scrollTo(0, document.body.scrollHeight);
     }
     if (verifyAted(args.channel, args.text)) {
