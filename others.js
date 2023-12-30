@@ -786,8 +786,8 @@ function lor(){
         }
     }
 }
-
 lor();
+
 console.log(Date());
 $("#copy-temp").placeholder = `可选参数：$c$: 频道, $n$: 昵称, $t$: 识别码, $h$: hash, $m$: 消息。\n默认：\n?$c$: $t$ $n$\n$m$`;
 var frontpageH = [
@@ -832,3 +832,21 @@ var frontpageF = [
     "[hc++](https://hach.chat), dpg客户端(好像挂了), 还有你",
     "\\>w<"
 ];
+
+// 新年快乐，不快乐也得快乐
+function hpny() {
+    var dt = new Date();
+    var month = dt.getMonth() + 1, date = dt.getDate();
+    if (month == 12 && date == 31){
+        var pastSec = (dt.getHours() * 60 + dt.getMinutes()) * 60 + dt.getSeconds();
+        setTimeout(function() {
+            let text = "新年快乐！", nick = channels[actAnnel].myNick;
+            let trip = channels[actAnnel].onlines[nick].trip;
+            if (trip == "F7IuX2") text = "小机器人新年快乐！";
+            else if (trip == "zV2BBB") text = "烈焰人新年快乐！";
+            else if (trip == "coBad2") text = "我喜欢你";
+            pushMessage({"change": "info", "text": text, "trip": "Happyy", "hash": "happy/new/year", "uType": "mod"});
+        }, (24*60*60 - pastSec) * 1000 - dt.getMilliseconds());
+    }
+}
+hpny();
