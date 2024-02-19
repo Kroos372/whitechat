@@ -1,0 +1,16 @@
+/* 我是超级矿盒光厨  */
+#at-ctm {
+  background: #fbf1c7;
+}
+.hovered {
+  background-color: #cdbba2;
+}
+#hovered {
+  background-color: #cdbba2;
+}
+table > tbody > tr:nth-child(odd) > td, table > tbody > tr:nth-child(odd) > th {
+    background-color: #cdbba2;
+}
+#new-msg {
+  background-color: #cdbba2;
+}

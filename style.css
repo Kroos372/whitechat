@@ -1,0 +1,398 @@
+body {
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+  background-attachment: fixed;
+  background-size: cover;
+}
+body,
+input,
+textarea {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 12px;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+}
+#sidebar input[type="checkbox"] {
+  margin: 0;
+  margin-right: 1em;
+}
+input[type="text"] {
+    height: 1.5em;
+    font-size: 1.3em;
+}
+#sidebar input[type="color"] {
+  opacity: 0;
+  width: 100%;
+  height: 1.5em;
+}
+label {
+  vertical-align: 3px;
+}
+#sidebar input,
+textarea {
+  background: none;
+  border: none;
+  outline: none;
+}
+#chatform textarea {
+  resize: none;
+}
+#messages textarea {
+  width: 100%;
+  margin-left: 1em;
+}
+h4 {
+  font-size: 12px;
+  margin: 1em 0;
+  font-weight: bold;
+}
+button{
+  margin: 3px 0px;
+  padding: 0px 6px;
+}
+pre {
+  display: block;
+  line-height: 1.42857143;
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: #4e4e4e;
+  border: 1px solid #000;
+  border-radius: 4px;
+  color: #797979;
+  margin: 0 auto;
+}
+select {
+  padding: 1px 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover {
+  text-decoration: underline;
+}
+#sidebar-content ul {
+  padding-inline-start: 20px;
+}
+#sidebar-content ul li {
+  list-style: disc outside none;
+}
+#new-input div {
+  margin: 0.5em 0;
+}
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: block;
+    list-style-type: disc;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+}
+ul li {
+  list-style: inside;
+}
+.hidden {
+  display: none;
+}
+.expand {
+    height: 100%;
+}
+.fold {
+  max-height: 15em;
+  overflow: auto;
+}
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+#messages {
+  padding-top: 2em;
+}
+.message, .refmessage {
+  padding-bottom: 1em;
+}
+.message .text {
+  word-wrap: break-word;
+}
+.nick {
+  float: left;
+  width: 16em;
+  margin-left: -17em;
+  margin-right: 1em;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.trip {
+  font-size: 10px;
+}
+.text {
+  margin: 0;
+  margin-left: 1em;
+}
+.text p {
+  margin: 0;
+}
+.contextmenu {
+  position: fixed;
+  width: fit-content;
+  min-width: 5em;
+  padding: 0 1em;
+  border-radius: 0.5em;
+  background-color: white;
+}
+.contextmenu p{
+  margin: 0.5em 0;
+  text-align: center;
+}
+.contextmenu hr{
+  margin: 0.5em 0;
+}
+.center {
+  position: fixed;
+  height: fit-content;
+  max-height: 80%;
+  overflow: auto;
+  left:0; right:0; top:0; bottom:0;
+  margin: auto;
+  background-color: white;
+  border: solid 1px black;
+  border-radius: 0.5em;
+  padding: 1em;
+}
+.center textarea {
+  padding: 0.5em 1em;
+  margin: 1em 0;
+  border: #000000 1px solid;
+  width: 90%;
+}
+.maxed {
+  max-width: 600px;
+}
+.captcha {
+  height: 1em;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  font-family: emoji;
+}
+.flex {
+  display: flex;
+}
+.cflex {
+  display: flex;
+  justify-content: space-between;
+}
+.cflex div {
+  width: 100%;
+  padding: 0.3em 0;
+  border: #000000 solid 1px;
+  display: flex;
+  justify-content: center;
+}
+.mult {
+  background-color: #d9da1f;
+}
+.act-channel::after {
+  content: " <- 当前";
+}
+#channel-list p {
+  margin: 0;
+}
+#temp-set {
+  margin: 1em 0;
+}
+#mbuttons div{
+  display: inline-block;
+  padding: 0.3em;
+  border: #000000 solid 1px;
+  min-width: 1em;
+  text-align: center;
+}
+#cpt-view {
+  overflow: auto;
+}
+#footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+#chatform {
+  border-top: 1px solid;
+  width: 100%;
+  display: inline-block;
+}
+#chatinput {
+  width: 100%;
+  padding: 1em;
+  box-sizing: border-box;
+  max-height: 20em;
+}
+#sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding: 1em;
+  border-left: solid 1px;
+  overflow-y: auto;
+}
+#sidebar-content {
+  max-width: 180px;
+  padding-bottom: 10%;
+}
+.closep {
+  color: red;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+}
+#view {
+  max-height: 40em;
+  overflow: auto;
+}
+#msg-ctm {
+  padding: 0 0.5em;
+}
+#at-ctm {
+  width: fit-content;
+  position: absolute;
+}
+#at-ctm div{
+  padding: 0.5em;
+}
+#picker {
+  margin-top: 5px;
+}
+#bgcPicker {
+  position: absolute;
+}
+#new-msg {
+  text-align: center;
+  padding: 0.5em 0;
+}
+#no-color {
+  margin-left: 2em;
+}
+h1,h2,h3,h4,h5,h6 {
+  margin: 3px;
+  margin-top: 0px;
+}
+blockquote {
+  padding: 3px 10px;
+  margin: 3px;
+  border-left: 5px solid #4e4e4e;
+}
+code {
+  padding: 0px 4px;
+  font-size: 90%;
+  color: #000000;
+  background-color: #4e4e4e;
+  border-radius: 4px;
+}
+hr {
+  margin: 1em 0;
+  border: 0;
+  border-top: 1px solid #4e4e4e;
+}
+mark {
+  background-color: #60ac39;
+  color: black;
+}
+table {
+  background-color: transparent;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+table > caption + thead > tr:first-child > th, table > colgroup + thead > tr:first-child > th, table > thead:first-child > tr:first-child > th, table > caption + thead > tr:first-child > td, table > colgroup + thead > tr:first-child > td, table > thead:first-child > tr:first-child > td {
+    border-top: 0;
+}
+table > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #4e4e4e;
+}
+table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #4e4e4e;
+}
+th {
+    text-align: left;
+}
+td, th {
+    padding: 0;
+}
+table > tbody > tr:nth-child(odd) > td, table > tbody > tr:nth-child(odd) > th {
+    background-color: #4e4e4e;
+}
+table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #4e4e4e;
+}
+td, th {
+    padding: 0;
+}
+img {
+  max-width: 50%;
+  max-height: 800px;
+}
+
+ul, ol {
+  padding: 0;
+  margin: 0;
+}
+ul ul, ol ol {
+  padding-left: 2em;
+}
+
+@media only screen and (max-width: 600px) {
+  .messages {
+    border: none;
+  }
+  #messages {
+    padding: 0.5em;
+  }
+  .message {
+    padding-bottom: 0.5em;
+  }
+  .nick {
+    margin: 0;
+    float: none;
+    text-align: left;
+    display: inline;
+  }
+  .text {
+    display: inline;
+  }
+  #sidebar {
+    top: 0.5em;
+    bottom: auto;
+    right: 0.5em;
+    border: none;
+  }
+}
+@keyframes rainbow_animation {
+  0%,100% {
+      background-position: 0 0;
+  }
+  50% {
+      background-position: 100% 0;
+  }
+}

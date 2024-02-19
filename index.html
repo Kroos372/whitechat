@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>Hack.Chat</title>
+  <!-- 欢迎投稿icon -->
+  <link rel="icon" type="image/png" href="icon.png" sizes="any" id="icon" />
+
+  <link id="scheme-link" rel="stylesheet" href="https://hack.chat/schemes/atelier-dune.css">
+  <link rel="stylesheet" href="style.css">
+  <link id="my-link" rel="stylesheet" href="myScheme/default.css">
+
+  <link rel="stylesheet" href="https://hack.chat/vendor/katex/katex.min.css">
+  <script src="https://hack.chat/vendor/katex/katex.min.js"></script>
+  <script src="https://hack.chat/vendor/remarkable-katex/remarkableKatex.min.js"></script>
+
+  <script src="https://hack.chat/vendor/hljs/highlight.min.js"></script>
+  <link id="highlight-link" rel="stylesheet" href="https://hack.chat/vendor/hljs/styles/darcula.css">
+  <script src="https://hack.chat/vendor/remarkable/remarkable.min.js"></script>
+</head>
+
+<body>
+  <audio style="display: none" id="notify-sound" preload="auto" src="https://hack.chat/audio/notify.mp3">
+    <source src="https://hack.chat/audio/notify.mp3" type="audio/ogg">
+  </audio>
+  <article class="container">
+    <div id="messages" class="messages"></div>
+  </article>
+  <footer id="footer">
+    <div class="container">
+      <div id="at-ctm" class="hidden">
+        <a><div>...</div></a>
+      </div>
+      <div id="new-msg" class="hidden"><a href="javascript:void(0)"></a></div>
+      <div id="mbuttons" class="flex">
+        <a id="key-enter"><div>Enter</div></a>
+        <a id="key-up"><div>↑</div></a>
+        <a id="key-down"><div>↓</div></a>
+        <a id="mdpreview" title="LaTeX设置与页面相同"><div>预览MD</div></a>
+        <a id="zwichk"><div>i:check</div></a>
+        <a id="funfun"><div>好玩的</div></a>
+      </div>
+      <div id="mult-oper" class="hidden">
+        <div><a id="msg-delete">删除</a></div>
+        <div><a id="msg-copy">复制</a></div>
+        <div><a id="msg-cancel">取消</a></div>
+      </div>
+      <form id="chatform" class="message">
+        <textarea id="chatinput" type="text" autocomplete="off" placeholder="发布一条友善的消息~" autofocus></textarea>
+      </form>
+    </div>
+  </footer>
+  <nav id="sidebar">
+    <div id="sidebar-content" class="hidden">
+      <h4>Settings</h4>
+      <p>
+        <input id="pin-sidebar" type="checkbox">
+        <label for="pin-sidebar">固定侧边栏</label>
+      </p>
+      <p>
+        <input id="joined-left" type="checkbox" checked>
+        <label for="joined-left">加入/离开提示</label>
+      </p>
+      <p>
+        <input id="sound-notify" type="checkbox">
+        <label for="sound-notify">被@时声音提示</label>
+      </p>
+      <p>
+        <input id="parse-latex" type="checkbox">
+        <label for="parse-latex">允许LaTeX</label>
+      </p>
+      <p>
+        <input id="image" type="checkbox" checked>
+        <label for="image">允许图片</label>
+      </p>
+      <p>
+        <input id="allCustom" type="checkbox">
+        <label for="allCustom">可编辑消息</label>
+      </p>
+      <p>
+        <input id="imgToggle" type="checkbox" checked>
+        <label for="imgToggle">右键图片缩回链接</label>
+      </p>
+      <p>
+        <input id="strictMd" type="checkbox">
+        <label for="strictMd">安全型Markdown</label>
+      </p>
+      <hr>
+      <p>
+        <h4>背景主题</h4>
+        <select id="scheme-selector"></select>
+      </p>
+      <p>
+        <h4>代码高亮主题</h4>
+        <select id="highlight-selector"></select>
+      </p>
+      <hr>
+        <select id="bar-ttons"></select><br>
+        <div id="picker" class="hidden">
+          <input type="color" id="colorPicker">
+        </div>
+        <button id="button">清除所有消息</button><br>
+        <button id="more-opt">更多设置</button>
+      <hr>
+        <p>
+          <h4>频道列表</h4>
+          <div id="channel-list"></div>
+        </p>
+      <hr>
+        <p>
+          <button id="join-channel">加入新频道</button><button id="close-channel">离开此频道</button><br>
+          <button id="channel-color">更改标识色</button><button id="del-color">删除标识色</button><br>
+          <button id="only-now">只看此频道</button>
+          <input type="color" id="bgcPicker" style="width: 0px;">
+        </p>
+      <hr>
+      <h4>在线用户</h4>
+      <p>(点击以邀请)</p>
+      <ul id="users"></ul>
+    </div>
+  </nav>
+  <div id="user-ctm" class="hidden contextmenu">
+    <a href="javascript:void(0)" id="atsb"><p>@他</p></a>
+    <hr>
+    <a href="javascript:void(0)" id="ignore"><p>按<select id="ig-selector"></select><span id="ig-change">屏蔽</span></p></a>
+  </div>
+  <div id="msg-ctm" class="hidden contextmenu">
+    <a href="javascript:void(0)" id="mult-select"><p>多选</p></a>
+    <hr>
+    <a href="javascript:void(0)" id="reply-sb"><p>回复</p></a>
+    <hr>
+    <a href="javascript:void(0)" id="delete-msg"><p>删除</p></a>
+    <hr>
+    <a href="javascript:void(0)" id="custom-msg"><p>编辑消息</p></a>
+  </div>
+  <div id="mdviewer" class="center maxed hidden">
+    <div>
+      <h2>Markdown效果预览</h2>
+    </div>
+    <a href="javascript:void(0)" onclick="closePage(this)" class="closep">X</a>
+    <hr>
+    <div id="view"><p></p></div>
+  </div>
+  <div class="center maxed hidden" id="new-input">
+    <a href="javascript:void(0)" onclick="closePage(this)" class="closep">X</a>
+    <div>频道名: <input type="text" id="new-channelname"></div>
+    <div>昵称: <input type="text" id="new-nick"></div>
+    <div>
+      标识背景色: <input type="color" id="new-color">
+      <input type="checkbox" id="no-color"><label for="no-color">不使用标识色</label>
+    </div>
+    <button id="rjoin">确认</button>
+  </div>
+  <div class="center maxed hidden" id="moptions">
+    <div>
+      <h2>更多设置</h2>
+    </div>
+    <a href="javascript:void(0)" onclick="closePage(this)" class="closep">X</a>
+    <hr>
+    <p>消息复制格式:</p>
+    <div style="display:flex;">
+      <textarea id="copy-temp" rows="5"></textarea>
+      <button id="temp-set">确认</button>
+    </div>
+    <p>点击消息中的频道链接时:</p>
+    <div id="clink">
+      <input type="radio" name="clink" id="nblank" value="0">
+      <label for="nblank">总是打开新标签页</label>
+      <input type="radio" name="clink" id="nchannel" value="1">
+      <label for="nchannel">总是在当前页面加入新频道</label>
+      <input type="radio" name="clink" id="nask" value="2">
+      <label for="nask">每次询问</label>
+    </div>
+    <div id="last-msg">
+      <p>标题上显示消息的最大字符数:</p>
+      <input type="number" id="last-max" placeholder="设为0则不显示">
+    </div>
+  </div>
+  <script src="others.js"></script>
+  <script src="client.js"></script>
+  <script src="event.js"></script>
+</body>
+
+</html>

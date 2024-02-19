@@ -1,0 +1,24 @@
+p {
+	margin: 0;
+}
+mark {
+    background-color: #60ac39;
+}
+input[type="checkbox"]{
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    outline: none;
+    width:20px;
+    height:21px;
+    background-color:#ffffff;
+    border:solid 1px #dddddd;
+    margin:0;
+    padding:0;
+    position:relative;
+    display:inline-block;
+    vertical-align:top;
+    transition:background-color ease 0.1s;
+}
+input[type="checkbox"]:checked {
+    background:#d9da1f;
+}
