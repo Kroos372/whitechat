@@ -39,26 +39,26 @@ const CMDS = {
     "/kcmd": function(msg) {
         var kd = msg.slice(6), index = Kcmd.indexOf(kd);
         if (!kd) {
-            pushMessage({ text: "目前的检测Kick命令有：" + Kcmd.join(", "), change: "info" });
+            pushMessage({ text: "目前的检测Kick命令有：" + Kcmd.join(", "), change: "info", channel: actAnnel });
         } else if (index == -1) {
             Kcmd.push(kd);
-            pushMessage({ text: `Kick检测列表添加"${kd}"！`, change: "info" });
+            pushMessage({ text: `Kick检测列表添加"${kd}"！`, change: "info", channel: actAnnel });
         } else {
             Kcmd.splice(index, 1);
-            pushMessage({ text: `Kick检测列表删除"${kd}"！`, change: "info" });
+            pushMessage({ text: `Kick检测列表删除"${kd}"！`, change: "info", channel: actAnnel });
         }
         return true;
     },
     "/swrd": function(msg) {
         var swd = msg.slice(6), index = shieldWords.indexOf(swd);
         if (!swd) {
-            pushMessage({ text: "目前的检测屏蔽词有：" + shieldWords.join(", "), change: "info" });
+            pushMessage({ text: "目前的检测屏蔽词有：" + shieldWords.join(", "), change: "info", channel: actAnnel });
         } else if (index == -1) {
-            pushMessage({ text: `屏蔽词列表添加"${swd}"！`, change: "info" });
+            pushMessage({ text: `屏蔽词列表添加"${swd}"！`, change: "info", channel: actAnnel });
             shieldWords.push(swd);
         } else {
             shieldWords.splice(index, 1);
-            pushMessage({ text: `屏蔽词列表删除"${swd}"！`, change: "info" });
+            pushMessage({ text: `屏蔽词列表删除"${swd}"！`, change: "info", channel: actAnnel });
         }
         sent(msg);
         return true;
@@ -69,10 +69,10 @@ const CMDS = {
         var index = list.indexOf(hash);
         if (index != -1) {
             list.splice(index, 1);
-            pushMessage({ text: `已取消屏蔽hash: "${hash}"`, change: "info" });
+            pushMessage({ text: `已取消屏蔽hash: "${hash}"`, change: "info", channel: actAnnel });
         } else {
-            pushMessage({ text: `已屏蔽hash: "${hash}"`, change: "info" });
             list.push(hash);
+            pushMessage({ text: `已屏蔽hash: "${hash}"`, change: "info", channel: actAnnel });
         }
         sent(msg);
         return true;
@@ -81,11 +81,11 @@ const CMDS = {
         var temp = msg.slice(6);
         if (temp) {
             msgTemplate = localStorage["msg-template"] = temp;
-            pushMessage({text: "已成功设置消息模板！", change: "info"});
+            pushMessage({text: "已成功设置消息模板！", change: "info", channel: actAnnel});
         } else {
             msgTemplate = null;
             localStorage.removeItem("msg-template");
-            pushMessage({text: "已成功删除消息模板！", change: "info"});
+            pushMessage({text: "已成功删除消息模板！", change: "info", channel: actAnnel});
         }
         sent(msg);
         return true;
@@ -102,12 +102,30 @@ const CMDS = {
     },
     "/help": function(msg) {
         if (!msg.slice(6)) {
-            pushMessage({trip: "coBad2", text: help, change: "info"});
+            pushMessage({trip: "coBad2", text: help, change: "info", channel: actAnnel});
         }
     },
     "/send": function(msg) {
         channels[actAnnel].socket.send(msg.slice(6));
         sent(msg);
+        return true;
+    },
+    "/face": function(msg) {
+        var url = msg.slice(6);
+        if (url) {
+            var index = emojis.indexOf(url);
+            if (index != -1) {
+                emojis.splice(index, 1);
+                delEmoji(url);
+                pushMessage({ text: `已删除表情: "![w](${url})"`, change: "info", channel: actAnnel });
+            } else {
+                emojis.push(url);
+                addEmoji(url);
+                pushMessage({ text: `已添加表情: "![w](${url})"`, change: "info", channel: actAnnel });
+            }
+            sent(msg);
+        }
+        localStorage["emojis"] = JSON.stringify(emojis);
         return true;
     }
 }
@@ -156,7 +174,6 @@ function sendMsg(msg, trace = true, ws) {
     if (!shouldConnect && msg == "/join") {
         return checkNick(actAnnel, inputNick());
     }
-    ws = ws || channels[actAnnel].socket;
     var func;
     for (var key of CMDKEYS) {
         if (msg.startsWith(key)) {
@@ -165,6 +182,7 @@ function sendMsg(msg, trace = true, ws) {
             break;
         }
     }
+    ws = ws || channels[actAnnel].socket;
     if (msgTemplate && !msg.startsWith("/")) msg = msgTemplate.replaceAll("%m", msg);
 
     if ($("#allCustom").checked){
@@ -283,7 +301,7 @@ function join(channel, nick, color = null) {
             try {
                 command.call(null, result);
             } catch (err) {
-                pushMessage({text: `出问题了！\n${err.message}`, change: "warn"});
+                pushMessage({text: `出问题了！\n${err.message}`, change: "warn", channel: actAnnel});
             }
         }
     };
@@ -691,7 +709,6 @@ $("#chatinput").onkeydown = function(e) {
     else if (e.key == "@") {
         atCont.flag = true;
         atCont.index = 0;
-        $("#at-ctm").style.bottom = $("#mbuttons").scrollHeight + $("#chatform").scrollHeight + 2 + "px";
     }
     else if (e.keyCode == 8 /* Backspace */) {
         if (pos && $("#chatinput").value[pos - 1] == "@") {

@@ -222,6 +222,12 @@ const anwz = {
 };
 const WARN = "!", INFO = "*";
 const isMobile = mobileJudge();
+try{
+    var emojis = JSON.parse(localStorageGet("emojis"));
+} catch (err) {
+    var emojis = [];
+}
+
 
 // Markdown所需
 function isWhite(link) {
@@ -372,6 +378,34 @@ function colorSet(channel, nick, color){
     var user = channels[channel].onlines[nick];
     if (user) user.color = color;
 }
+// 添加表情
+function addEmoji(url){
+    var li = document.createElement("li");
+    li.classList.add("my-emoji");
+    var img = document.createElement("img");
+    img.src = url;
+
+    var a = document.createElement("a");
+    a.onclick = function(e) {
+        insertAtCursor(`![awa](${url})`);
+        e.stopPropagation();
+    }
+    li.appendChild(a);
+    a.appendChild(img)
+    $("#emojis").appendChild(li);
+}
+// 删除表情
+function delEmoji(url) {
+    var list = $("#emojis img", true);
+    for (let img of list){
+        if (img.src == url) {
+            img.parentElement.parentElement.remove();
+            break;
+        }
+    }
+}
+// 陈列表情
+emojis.forEach(addEmoji);
 
 // 从localStorage中获取设置
 if (localStorageGet("pin-sidebar") == "true") {
@@ -657,6 +691,7 @@ window.addEventListener("contextmenu", window.onclick = function(e){
             menus[i].classList.add("hidden");
         }
     }
+    $("#emojis").classList.add("hidden");
 }, true);
 
 function updateInputSize() {
@@ -664,7 +699,7 @@ function updateInputSize() {
     var input = $("#chatinput");
     input.style.height = 0;
     input.style.height = input.scrollHeight + "px";
-    document.body.style.marginBottom = $("#footer").offsetHeight + "px";
+    document.body.style.marginBottom = $("#chatform").offsetHeight + $("#mbuttons").offsetHeight + "px";
 
     if (atBottom) {
         window.scrollTo(0, document.body.scrollHeight);

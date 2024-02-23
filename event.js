@@ -205,6 +205,11 @@ $("#funfun").onclick = function(e) {
     updateInputSize();
     $("#chatinput").focus();
 }
+$("#emoji-on").onclick = function(e) {
+    e.stopPropagation();
+    $("#emojis").classList.remove("hidden");
+    $("#chatinput").placeholder = "使用/face <链接>添加或删除表情~";
+}
 // 传统右键菜单
 $("#mult-select").onclick = function(e) {
     $("#mult-oper").classList.add("cflex");
