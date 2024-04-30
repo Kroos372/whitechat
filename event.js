@@ -69,6 +69,7 @@ $("#temp-set").onclick = function(e) {
 $("#last-max").onchange = function(e) {
     localStorage["last-max"] = lastMax = Number(e.target.value);
 }
+// 多频道
 var newJoin = $("#join-channel").onclick = function() {
     $("#new-input").classList.remove("hidden");
     $("#new-nick").value = channels[actAnnel].fullnick;

@@ -286,7 +286,7 @@ ul li {
 #at-ctm {
   width: -moz-fit-content; /* edge让我加的 */
   width: fit-content;
-  position: relative;
+  position: absolute;
 }
 #at-ctm div{
   padding: 0.5em;

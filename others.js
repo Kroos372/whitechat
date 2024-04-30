@@ -62,7 +62,10 @@ const schemes = [
     "gruvbox-light",
     "fried-egg",
     "rainbow",
-    "amoled"
+    "amoled",
+    "retro",
+    "Waifu",
+    "flamingo"
 ];
 const highlights = [
     "agate",
@@ -214,6 +217,9 @@ var help = [
 ].join("\n");
 // 白名单什么时候写
 var imgWhites = [], z6 = parseInt("z".repeat(6), 36) + 1;
+var allowImages = true, toggle = true, strictMd = false;
+var lastMax = 12;
+var utils = Remarkable.utils;
 // 我趣，这不是安慰吗
 const anwz = {
     2: "nask",
@@ -262,8 +268,6 @@ var markdownOptions = {
     }
 };
 var md = new Remarkable("full", markdownOptions);
-var allowImages = true, toggle = true, strictMd = false;
-var utils = Remarkable.utils;
 
 md.renderer.rules.image = function (tokens, idx, options) {
     var src = utils.escapeHtml(tokens[idx].src);
@@ -492,8 +496,8 @@ function usersPrint(channel) {
     var onlines = cnl.onlines;
     cnl.lastSentPos = 0;
     if (onlyRead) {
-        hideOthers(channel);
         showMsg(channel);
+        hideOthers(channel);
     }
     $("#chatinput").style.backgroundColor = cnl.color;
     actAnnel = channel;
@@ -506,9 +510,7 @@ function usersPrint(channel) {
 function userAdd(channel, args) {
     var nick = args.nick;
     if (!channels[channel]) initChannel(channel, channels[actAnnel].socket);
-    channels[channel].onlines[nick] = {
-        nick: args.nick, hash: args.hash, trip: args.trip, uType: args.uType, color: args.color
-    };
+    channels[channel].onlines[nick] =  JSON.parse(JSON.stringify(args));
     channels[channel].nicks.push(nick);
     if (channel == actAnnel) {
         userEle(channel, args);
@@ -527,7 +529,6 @@ function isAtBottom() {
     return (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 1);
 }
 
-var lastMax = 12;
 // 唐完了
 function updateTitle() {
     var cnls = Object.keys(channels);
@@ -604,20 +605,16 @@ function updateTitle() {
 }
 
 function hideOthers(channel) {
-    var all = $("#messages > .message", true);
+    var all = $(`#messages > :not(.c-${channel})`, true);
     all.forEach(function(ele) {
-        if (!ele.classList.contains("c-" + channel)) {
-            ele.classList.add("hidden");
-        }
+        ele.classList.add("hidden");
     });
 }
 function showMsg(channel) {
-    var all = $("#messages > .hidden", true);
+    var all = $(`#messages > .c-${channel}`, true);
     var atBottom = isAtBottom();
     all.forEach(function(ele) {
-        if (ele.classList.contains("c-" + channel)) {
-            ele.classList.remove("hidden");
-        }
+        ele.classList.remove("hidden");
     });
     if (atBottom) {
         window.scrollTo(0, document.body.scrollHeight);

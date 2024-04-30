@@ -127,6 +127,21 @@ const CMDS = {
         }
         localStorage["emojis"] = JSON.stringify(emojis);
         return true;
+    },
+    "/colo ": function(msg) {
+        var nick = namePure(msg.slice(6));
+        if (channels[actAnnel]) {
+            var ol = channels[actAnnel].onlines[nick];
+            if (!ol) {
+                pushMessage({ text: "没有这个昵称！", change: "info", channel: actAnnel });
+            } else if (!ol.color) {
+                pushMessage({ text: "该用户还没有颜色", change: "info", channel: actAnnel });
+            } else {
+                pushMessage({ text: `${nick}的颜色为==${ol.color}==`, change: "info", channel: actAnnel });
+            }
+            sent(msg);
+            return true;
+        }
     }
 }
 const CMDKEYS = Object.keys(CMDS);
@@ -709,6 +724,7 @@ $("#chatinput").onkeydown = function(e) {
     else if (e.key == "@") {
         atCont.flag = true;
         atCont.index = 0;
+        $("#at-ctm").style.bottom = $("#mbuttons").scrollHeight + $("#chatform").scrollHeight + 2 + "px";
     }
     else if (e.keyCode == 8 /* Backspace */) {
         if (pos && $("#chatinput").value[pos - 1] == "@") {
