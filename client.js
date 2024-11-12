@@ -6,6 +6,8 @@ var channels = {}, kchannel, Kcmd = [".m kick"], shieldWords = [];
 var lastMsg, shouldConnect, mults = {}, multf = false;
 var copyTemplate = localStorageGet("copy-template") || "?$c$: $t$ $n$\n$m$\n";
 var msgTemplate = localStorageGet("msg-template");
+const WSADD = "wss://hack.chat/chat-ws"
+
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
     "/k ": function(msg) {
@@ -233,7 +235,9 @@ function rejoin(channel, nick) {
     delete channels[channel];
     $(`#cl-${channel}`).remove();
     var nhannel = Object.keys(channels)[0];
-    $(`#cl-${nhannel} > button`).click();
+    if (nhannel) {
+        $(`#cl-${nhannel} > button`).click();
+    }
     join(channel, nick, color);
 }
 function initChannel(channel, ws, color=null) {
@@ -280,7 +284,7 @@ function initChannel(channel, ws, color=null) {
 }
 function join(channel, nick, color = null) {
     var wasConnected = false;
-    var ws = new WebSocket("wss://hack.chat/chat-ws");
+    var ws = new WebSocket(WSADD);
     var nowAnnel = initChannel(channel, ws, color);
     actAnnel = channel;
 
@@ -741,7 +745,7 @@ $("#chatinput").onkeydown = function(e) {
 updateInputSize();
 
 if (actAnnel == "") {
-    var ws = new WebSocket("wss://hack.chat/chat-ws");
+    var ws = new WebSocket(WSADD);
     ws.onopen = function (){
         if (ws && ws.readyState == ws.OPEN) {
             ws.send(JSON.stringify({cmd: "session"}));
