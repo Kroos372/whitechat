@@ -907,11 +907,12 @@ var frontpageH = [
     "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
     "---",
     "以下是一些可供加入的预制频道：",
-    "|名称|人数|名称|人数|",
-    "|:-:|:-:|:-:|:-:|"
+    "?your-channel ?programming ?lounge ?kt1j8rpc"
+    // "|名称|人数|名称|人数|",
+    // "|:-:|:-:|:-:|:-:|"
 ];
 var frontpageF = [
-    "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
+    // "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
     "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
     "", // SB Markdown
     "---",

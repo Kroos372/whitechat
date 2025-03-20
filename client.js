@@ -314,7 +314,12 @@ function join(channel, nick, color = null) {
     };
     ws.onmessage = function(message) {
         var result = JSON.parse(message.data);
-        var cmd = result.cmd, channel = result.channel;
+        var cmd = result.cmd;
+        if (result.channel) {
+            channel = result.channel;
+        } else {
+            result.channel = channel;
+        }
         var command = COMMANDS[cmd];
         if (command) {
             try {
@@ -443,12 +448,14 @@ var COMMANDS = {
         }
     },
     session: function(args) {
-        var rooms = args.public, text = "";
-        var keys = Object.keys(rooms);
-        for (var i of keys) {
-            text += `?${i} : ${rooms[i]}&emsp;`;
-        };
-        pushMessage({ change: "info", text: text });
+        if (args.public) {
+            var rooms = args.public, text = "";
+            var keys = Object.keys(rooms);
+            for (var i of keys) {
+                text += `?${i} : ${rooms[i]}&emsp;`;
+            };
+            pushMessage({change: "info", text: text});
+        }
     },
     updateMessage: function(args) {
         var mode = args.mode, customId = args.customId, message;
@@ -745,31 +752,34 @@ $("#chatinput").onkeydown = function(e) {
 updateInputSize();
 
 if (actAnnel == "") {
-    var ws = new WebSocket(WSADD);
-    ws.onopen = function (){
-        if (ws && ws.readyState == ws.OPEN) {
-            ws.send(JSON.stringify({cmd: "session"}));
-        }
-    };
-    ws.onmessage = function(message) {
-        var result = JSON.parse(message.data);
-        var rooms = result.public;
-        if (rooms) {
-            var keys = Object.keys(rooms);
-            var string = "";
-            for (var i = 0; i < keys.length; i++) {
-                string += "| ?" + keys[i] + "|" + rooms[keys[i]];
-                if (i % 2) {
-                    string += "|";
-                    frontpageH.push(string);
-                    string = "";
-                }
-            }
-            var frontpage = frontpageH.concat(frontpageF).join("\n");
-            pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
-            $(".text").classList.remove("fold");
-        }
-    }
+    // var ws = new WebSocket(WSADD);
+    // ws.onopen = function (){
+    //     if (ws && ws.readyState == ws.OPEN) {
+    //         ws.send(JSON.stringify({cmd: "session"}));
+    //     }
+    // };
+    // ws.onmessage = function(message) {
+    //     var result = JSON.parse(message.data);
+    //     var rooms = result.public;
+    //     if (rooms) {
+    //         var keys = Object.keys(rooms);
+    //         var string = "";
+    //         for (var i = 0; i < keys.length; i++) {
+    //             string += "| ?" + keys[i] + "|" + rooms[keys[i]];
+    //             if (i % 2) {
+    //                 string += "|";
+    //                 frontpageH.push(string);
+    //                 string = "";
+    //             }
+    //         }
+    //         var frontpage = frontpageH.concat(frontpageF).join("\n");
+    //         pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
+    //         $(".text").classList.remove("fold");
+    //     }
+    // }
+    var frontpage = frontpageH.concat(frontpageF).join("\n");
+    pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
+    $(".text").classList.remove("fold");
 } else {
     var nick = location.hash.slice(1);
     join(actAnnel, nick);
