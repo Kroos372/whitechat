@@ -526,26 +526,17 @@ function pushMessage(args) {
     nickSpanEl.classList.add("nick");
     messageEl.appendChild(nickSpanEl);
     // 识别码
-    if (args.trip) {
+    var tripEl;
+    if (args.trip || args.flair) {
         var tripEl = document.createElement("span");
-        if (args.uType == "admin") {
-            tripEl.textContent = String.fromCharCode(10024) + " " + args.trip + " ";
-        } else if (args.uType == "mod") {
-            tripEl.textContent = String.fromCharCode(11088) + " " + args.trip + " ";
-        } else {
-            tripEl.textContent = args.trip + " ";
-        }
-        // 机器人🤖
-        if (args.flair) {
-            tripEl.textContent = args.flair + " " + tripEl.textContent;
-        }
+        tripEl.textContent = `${args.flair || ""} ${args.trip || ""} `
         tripEl.classList.add("trip");
         nickSpanEl.appendChild(tripEl);
     }
 
     // hash
     if (args.hash) {
-        if (!args.trip) {
+        if (!tripEl) {
             var tripEl = document.createElement("span");
             tripEl.classList.add("trip");
             tripEl.innerHTML = "&emsp;&emsp; ";

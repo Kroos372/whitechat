@@ -196,7 +196,7 @@ $("#funfun").onclick = function(e) {
         args = Object.assign(args, cnl.onlines[cnl.myNick]);
     } else {
         args.trip = "rrrRRR";
-        args.uType = "mod";
+        args.flair = "⭐";
         args.nick = "R";
         args.hash = "S2ltaU5pQXNhR2FGdXJ1";
         args.color = "#0cf";

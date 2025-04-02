@@ -456,12 +456,7 @@ function userEle(channel, args) {
     if (args.trip){
         var tripEl = document.createElement("span");
         tripEl.classList.add("trip");
-        tripEl.textContent = " " + args.trip;
-        if (args.uType == "admin"){
-            tripEl.textContent = " " + String.fromCharCode(10024) + tripEl.textContent;
-        } else if (args.uType == "mod"){
-            tripEl.textContent = " " + String.fromCharCode(11088) + tripEl.textContent;
-        }
+        tripEl.textContent = ` ${args.flair || ""} ${args.trip || ""} `
         userLi.appendChild(tripEl);
     }
 
@@ -950,7 +945,7 @@ function hpny() {
             if (trip == "F7IuX2") text = "小机器人新年快乐！";
             else if (trip == "zV2BBB") text = "烈焰人新年快乐！";
             else if (trip == "coBad2") text = "我喜欢你";
-            pushMessage({"change": "info", "text": text, "trip": "Happyy", "hash": "happy/new/year", "uType": "mod"});
+            pushMessage({"change": "info", "text": text, "trip": "Happyy", "hash": "happy/new/year", "flair": "⭐"});
         }, (24*60*60 - pastSec) * 1000 - dt.getMilliseconds());
     }
 }
