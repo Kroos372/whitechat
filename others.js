@@ -907,12 +907,11 @@ var frontpageH = [
     "这里不会显示频道列表，因此你可以使用秘密频道名称进行私人讨论。",
     "---",
     "以下是一些可供加入的预制频道：",
-    "?your-channel ?programming ?lounge ?kt1j8rpc"
-    // "|名称|人数|名称|人数|",
-    // "|:-:|:-:|:-:|:-:|"
+    "|名称|人数|名称|人数|",
+    "|:-:|:-:|:-:|:-:|"
 ];
 var frontpageF = [
-    // "| ?kt1j8rpc | \\ | ?your-channel | \\ |",
+    "| ?kt1j8rpc | \\ | \\ | \\ |",
     "并且这里有一个仅为你准备的秘密频道: ?" + Math.random().toString(36).substr(2, 8),
     "", // SB Markdown
     "---",
@@ -936,7 +935,7 @@ var frontpageF = [
     "---",
     "特别感谢:",
     "[hc++](https://hach.chat), [dpg客户端](https://hc.doppelganger.eu.org/), 还有你",
-    "\\>w<"
+    "\\>w< ᕕ( ᐛ )ᕗ"
 ];
 
 // 新年快乐，不快乐也得快乐

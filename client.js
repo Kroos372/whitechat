@@ -535,9 +535,14 @@ function pushMessage(args) {
         } else {
             tripEl.textContent = args.trip + " ";
         }
+        // 机器人🤖
+        if (args.flair) {
+            tripEl.textContent = args.flair + " " + tripEl.textContent;
+        }
         tripEl.classList.add("trip");
         nickSpanEl.appendChild(tripEl);
     }
+
     // hash
     if (args.hash) {
         if (!args.trip) {
@@ -752,32 +757,30 @@ $("#chatinput").onkeydown = function(e) {
 updateInputSize();
 
 if (actAnnel == "") {
-    // var ws = new WebSocket(WSADD);
-    // ws.onopen = function (){
-    //     if (ws && ws.readyState == ws.OPEN) {
-    //         ws.send(JSON.stringify({cmd: "session"}));
-    //     }
-    // };
-    // ws.onmessage = function(message) {
-    //     var result = JSON.parse(message.data);
-    //     var rooms = result.public;
-    //     if (rooms) {
-    //         var keys = Object.keys(rooms);
-    //         var string = "";
-    //         for (var i = 0; i < keys.length; i++) {
-    //             string += "| ?" + keys[i] + "|" + rooms[keys[i]];
-    //             if (i % 2) {
-    //                 string += "|";
-    //                 frontpageH.push(string);
-    //                 string = "";
-    //             }
-    //         }
-    //         var frontpage = frontpageH.concat(frontpageF).join("\n");
-    //         pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
-    //         $(".text").classList.remove("fold");
-    //     }
-    // }
-    var frontpage = frontpageH.concat(frontpageF).join("\n");
+    var ws = new WebSocket(WSADD);
+    ws.onopen = function (){
+        if (ws && ws.readyState == ws.OPEN) {
+            ws.send(JSON.stringify({cmd: "getchannels"}));
+        }
+    };
+    ws.onmessage = function(message) {
+        var result = JSON.parse(message.data);
+        var rooms = result.list;
+        if (rooms) {
+            var string = "";
+            for (var i = 0; i < rooms.length; i++) {
+                string += "| ?" + rooms[i].name + "|" + rooms[i].count;
+                if (i % 2) {
+                    string += "|";
+                    frontpageH.push(string);
+                    string = "";
+                }
+            }
+            var frontpage = frontpageH.concat(frontpageF).join("\n");
+            pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
+            $(".text").classList.remove("fold");
+        }
+    }
     pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
     $(".text").classList.remove("fold");
 } else {
