@@ -202,8 +202,6 @@ $("#funfun").onclick = function(e) {
         args.color = "#0cf";
     }
     pushMessage(args);
-    $("#chatinput").value = "";
-    updateInputSize();
     $("#chatinput").focus();
 }
 $("#emoji-on").onclick = function(e) {

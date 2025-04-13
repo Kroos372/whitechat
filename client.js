@@ -130,7 +130,7 @@ const CMDS = {
         localStorage["emojis"] = JSON.stringify(emojis);
         return true;
     },
-    "/colo ": function(msg) {
+    "/colo": function(msg) {
         var nick = namePure(msg.slice(6));
         if (channels[actAnnel]) {
             var ol = channels[actAnnel].onlines[nick];
@@ -144,9 +144,23 @@ const CMDS = {
             sent(msg);
             return true;
         }
-    }
+    },
+    "/auto": function(msg) {
+        var array = msg.slice(6).split(" ");
+        var key = array[0];
+        if (array[1]) {
+            autoreplys[key] = array.slice(1).join(" ");
+            pushMessage({text: `已设置${key}的回答为==${autoreplys[key]}==!`, change: "info", channel: actAnnel});
+        } else if (autoreplys[key]){
+            pushMessage({text: `已清除${key}的回答==${autoreplys[key]}==!`, change: "info", channel: actAnnel});
+            delete autoreplys[key];
+        } else {
+            pushMessage({text: `以下是回答的Keys:\n ${Object.keys(autoreplys).join(", ")}`, change: "info", channel: actAnnel});
+        }
+        localStorage["autoreplys"] = JSON.stringify(autoreplys);
+        return true;
+    },
 }
-const CMDKEYS = Object.keys(CMDS);
 const KEYS = {
     up: function(e) {
         var input = $("#chatinput");
@@ -192,7 +206,7 @@ function sendMsg(msg, trace = true, ws) {
         return checkNick(actAnnel, inputNick());
     }
     var func;
-    for (var key of CMDKEYS) {
+    for (var key in CMDS) {
         if (msg.startsWith(key)) {
             func = CMDS[key];
             if (func(msg)) return;
@@ -333,20 +347,26 @@ function join(channel, nick, color = null) {
 var COMMANDS = {
     chat: function(args) {
         var nick = args.nick, text = args.text, channel = args.channel;
+        var channelObj = channels[channel];
         try {
-            args.hash = channels[channel].onlines[nick].hash;
+            args.hash = channelObj.onlines[nick].hash;
         } catch (err) { }
 
-        pushMessage(args);
+        if (text in autoreplys) {
+            var reply = autoreplys[text].replaceAll("$s", nick).replaceAll("$t", args.trip);
+            sendMsg(reply, false, channelObj.socket);
+        }
 
-        var mnk = channels[channel].myNick;
-        for (var i = 0, cd, arr; i < Kcmd.length; i++) {
+        var mnk = channelObj.myNick;
+        for (var i = 0, cd; i < Kcmd.length; i++) {
             cd = Kcmd[i];
             if (text.startsWith(cd) && namePure(text.slice(cd.length)) == mnk) {
-                whisper(mnk, "i:check", false, channels[channel].socket);
+                whisper(mnk, "i:check", false, channelObj.socket);
                 kchannel = channel;
             }
         }
+
+        pushMessage(args);
     },
     info: function(args) {
         var channel = channels[args.channel];
@@ -772,8 +792,6 @@ if (actAnnel == "") {
             $(".text").classList.remove("fold");
         }
     }
-    pushMessage({text: frontpage, hash: "Qm9jY2hpQ2hhbg", change: "info" });
-    $(".text").classList.remove("fold");
 } else {
     var nick = location.hash.slice(1);
     join(actAnnel, nick);

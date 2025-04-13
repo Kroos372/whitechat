@@ -27,6 +27,7 @@ Object.keys(ignores).forEach(function (val) {
 });
 // 主题选择
 const schemes = [
+    "amoled",
     "android",
     "android-white",
     "atelier-dune",
@@ -37,12 +38,17 @@ const schemes = [
     "banana",
     "bright",
     "bubblegum",
+    "carrot",
     "chalk",
     "default",
     "eighties",
+    "flamingo",
     "fresh-green",
+    "fried-egg",
     "greenscreen",
+    "gruvbox-light",
     "hacker",
+    "lax",
     "maniac",
     "mariana",
     "military",
@@ -53,19 +59,13 @@ const schemes = [
     "omega",
     "pop",
     "railscasts",
+    "rainbow",
+    "retro",
     "solarized",
     "tk-night",
     "tomorrow",
-    "carrot",
-    "lax",
     "Ubuntu",
-    "gruvbox-light",
-    "fried-egg",
-    "rainbow",
-    "amoled",
-    "retro",
     "Waifu",
-    "flamingo"
 ];
 const highlights = [
     "agate",
@@ -202,7 +202,10 @@ const holders = [
     "发送一条友善的消息~",
     "按/可以快速聚焦哦",
     "喵喵喵，喵喵喵喵？",
-    "明明什么都没做，就已经hour点了..."
+    "明明什么都没做，就已经hour点了...",
+    "/help也可以查看客户端帮助哦",
+    "这里是聊天室，不是无人区uwu",
+    "祝你有美好的一天"
 ];
 var help = [
     "# 恭喜你发现这个隐藏的帮助⭐",
@@ -211,6 +214,7 @@ var help = [
     "|-|-|",
     "|/setbg|设置背景图|",
     "|/temp|设置消息模板，%m代表消息|",
+    "|/auto|设置自动回复, /auto 话 回复|",
     "|右键识别码（或名字左边的空格）|复制hash|",
     "|双击识别码|切换至该频道|",
     "|双击消息|复制该消息的历史记录|"
@@ -232,6 +236,11 @@ try{
     var emojis = JSON.parse(localStorageGet("emojis"));
 } catch (err) {
     var emojis = [];
+}
+try{
+    var autoreplys = JSON.parse(localStorageGet("autoreplys"));
+} catch (err) {
+    var autoreplys = {};
 }
 
 
