@@ -10,7 +10,7 @@ const WSADD = "wss://hack.chat/chat-ws"
 
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
-    "/k": function(msg) {
+    "/k ": function(msg) {
         whisper(namePure(msg.slice(3)), "$\\begin{pmatrix}qaq\\\\[29471285em]\\end{pmatrix}$");
         return true;
     },
