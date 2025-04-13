@@ -285,7 +285,7 @@ $("#msg-cancel").onclick = function(e) {
     $("#mbuttons").classList.remove("hidden");
     $("#mbuttons").classList.add("flex");
     var msgs = Object.values(mults);
-    for (var [i, v] of msgs) {
+    for (let [i, _] of msgs) {
         i.classList.remove("mult");
     }
     mults = {};
@@ -293,7 +293,7 @@ $("#msg-cancel").onclick = function(e) {
 }
 $("#msg-delete").onclick = function(e) {
     var msgs = Object.values(mults);
-    for (var [i, v] of msgs) {
+    for (let [i, _] of msgs) {
         i.remove();
     }
     mults = {};
@@ -301,7 +301,7 @@ $("#msg-delete").onclick = function(e) {
 $("#msg-copy").onclick = function(e) {
     var msgs = Object.values(mults);
     var text = "";
-    for (var [i, v] of msgs) {
+    for (let [_, v] of msgs) {
         var txt = copyTemplate.replace("$c$", v.channel || "").replace("$n$", v.nick).replace("$m$", v.text);
         text += txt.replace("$h$", v.hash || "").replace("$t$", v.trip || "") + "\n";
     }

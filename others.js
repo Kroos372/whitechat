@@ -189,7 +189,7 @@ $("#bar-ttons").value = "clear-messages";
 // 是否是手机
 function mobileJudge(){
     const mobileAgents = ["Android", "iPhone", "Windows Phone", "iPad", "iPod", "SymbianOS"];
-    for (var i = 0, ua = navigator.userAgent; i < mobileAgents.length; i++) {
+    for (let i = 0, ua = navigator.userAgent; i < mobileAgents.length; i++) {
         if (ua.indexOf(mobileAgents[i]) != -1){
             return true;
         }
@@ -687,9 +687,9 @@ window.onkeydown = function (e) {
 }
 window.addEventListener("contextmenu", window.onclick = function(e){
     var menus = $(".contextmenu", true);
-    for (var i = 0; i < menus.length; i++) {
-        if (!menus[i].classList.contains("hidden")) {
-            menus[i].classList.add("hidden");
+    for (let menu of menus) {
+        if (!menu.classList.contains("hidden")) {
+            menu.classList.add("hidden");
         }
     }
     $("#emojis").classList.add("hidden");
@@ -848,7 +848,7 @@ function randomColor() {
 // 随机昵称
 function randomNick() {
     var nick = "";
-    for (var i = 0; i < randint(1, 25); i++){
+    for (let i = 0; i < randint(1, 25); i++){
         nick += choice(allow);
     }
     return nick;
@@ -876,7 +876,7 @@ function isShielded(channel, nick) {
 // 屏蔽词
 function wordShielded(msg) {
     if (!msg) return false;
-    for (var i of shieldWords) {
+    for (let i of shieldWords) {
         if (RegExp(i, "g").test(msg)) {
             return true;
         }
@@ -886,8 +886,8 @@ function wordShielded(msg) {
 // left or right
 function lor(){
     var checks = $("input[type=\"checkbox\"]", true);
-    for (var i = 0; i < checks.length; i++){
-        checks[i].oncontextmenu = function(e){
+    for (let i of checks){
+        i.oncontextmenu = function(e){
             e.preventDefault();
             e.target.click();
         }

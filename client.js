@@ -2,7 +2,7 @@
 //自定义变量
 var actAnnel = window.location.search.replace(/^\?/, "");
 // 迟早要把channels写成类
-var channels = {}, kchannel, Kcmd = [".m kick"], shieldWords = [];
+var channels = {}, kchannel, Kcmd = [], shieldWords = [];
 var lastMsg, shouldConnect, mults = {}, multf = false;
 var copyTemplate = localStorageGet("copy-template") || "?$c$: $t$ $n$\n$m$\n";
 var msgTemplate = localStorageGet("msg-template");
@@ -10,11 +10,11 @@ const WSADD = "wss://hack.chat/chat-ws"
 
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
-    "/k ": function(msg) {
+    "/k": function(msg) {
         whisper(namePure(msg.slice(3)), "$\\begin{pmatrix}qaq\\\\[29471285em]\\end{pmatrix}$");
         return true;
     },
-    "/zw ": function(msg) {
+    "/zw": function(msg) {
         whisper(channels[actAnnel].myNick, msg.slice(4));
         return true;
     },
@@ -358,7 +358,7 @@ var COMMANDS = {
         }
 
         var mnk = channelObj.myNick;
-        for (var i = 0, cd; i < Kcmd.length; i++) {
+        for (let i = 0, cd; i < Kcmd.length; i++) {
             cd = Kcmd[i];
             if (text.startsWith(cd) && namePure(text.slice(cd.length)) == mnk) {
                 whisper(mnk, "i:check", false, channelObj.socket);
@@ -433,7 +433,7 @@ var COMMANDS = {
             var messageEl = document.createElement("div");
             messageEl.id = "cpt-view";
             var arr = args.text.replace(/ /g, "&ensp;&ensp;").replace(/#/g, "@").split("\n");
-            for (var i of arr) {
+            for (let i of arr) {
                 var textEl = document.createElement("p");
                 textEl.innerHTML = i;
                 textEl.classList.add("text");
@@ -471,7 +471,7 @@ var COMMANDS = {
         if (args.public) {
             var rooms = args.public, text = "";
             var keys = Object.keys(rooms);
-            for (var i of keys) {
+            for (let i of keys) {
                 text += `?${i} : ${rooms[i]}&emsp;`;
             };
             pushMessage({change: "info", text: text});
@@ -779,7 +779,7 @@ if (actAnnel == "") {
         var rooms = result.list;
         if (rooms) {
             var string = "";
-            for (var i = 0; i < rooms.length; i++) {
+            for (let i = 0; i < rooms.length; i++) {
                 string += "| ?" + rooms[i].name + "|" + rooms[i].count;
                 if (i % 2) {
                     string += "|";
