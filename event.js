@@ -29,6 +29,9 @@ $("#imgToggle").onchange = function(e) {
 $("#strictMd").onchange = function(e) {
     localStorage.strictMd = strictMd = e.target.checked;
 }
+$("#picFold").onchange = function(e) {
+    localStorage.picFold = e.target.checked;
+}
 // 一些不优雅的按键
 $("#bar-ttons").onchange = function(e) {
     if (e.target.value == "change-color") {

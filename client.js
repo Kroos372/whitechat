@@ -8,6 +8,9 @@ var copyTemplate = localStorageGet("copy-template") || "?$c$: $t$ $n$\n$m$\n";
 var msgTemplate = localStorageGet("msg-template");
 const WSADD = "wss://hack.chat/chat-ws"
 
+var num_flag = false;
+var rests = all.slice();
+
 // 自定义命令，return true代表不继续发送消息
 const CMDS = {
     "/k ": function(msg) {
@@ -130,7 +133,7 @@ const CMDS = {
         localStorage["emojis"] = JSON.stringify(emojis);
         return true;
     },
-    "/colo": function(msg) {
+    "/colo ": function(msg) {
         var nick = namePure(msg.slice(6));
         if (channels[actAnnel]) {
             var ol = channels[actAnnel].onlines[nick];
@@ -158,6 +161,78 @@ const CMDS = {
             pushMessage({text: `以下是回答的Keys:\n ${Object.keys(autoreplys).join(", ")}`, change: "info", channel: actAnnel});
         }
         localStorage["autoreplys"] = JSON.stringify(autoreplys);
+        return true;
+    },
+    "/flag": function(msg) {
+        num_flag = eval(msg.slice(6));
+        if (!num_flag) {
+            rests = all.slice();
+        }
+        pushMessage({text: `已设置num_flag为==${num_flag}==!`, change: "info", channel: actAnnel});
+        return true;
+    },
+    "/wd": function(msg) {
+        let send_flag = true;
+        msg = msg.slice(4)
+        if (msg == "r") {
+            wordle_clear();
+            pushMessage({text: `清除成功`, change: "info", channel: actAnnel});
+            return true;
+        } else if (msg.startsWith("wd ")) {
+            wordle_stats.last_word = msg.slice(3);
+            pushMessage({text: `更改成功`, change: "info", channel: actAnnel});
+            return true
+        } else if (msg.startsWith(". ")) {
+            msg = msg.slice(2);
+            send_flag = false;
+        } else if (msg == "on") {
+            sendMsg("wordle start", false, null);
+            sendMsg("raise", false, null);
+            wordle_clear();
+            return true
+        }
+    
+        let final_msg = "", msg_i = 0;
+        if (msg[0] == "-") {
+            msg = msg.slice(1).padStart(5, ".");
+        } else {
+            msg = msg.padEnd(5, ".");
+        }
+        for (let i = 0; i < 5; i++) {
+            if (wordle_stats.last_result[i] == "a") {
+                final_msg += "a";
+            } else {
+                final_msg += msg[msg_i];
+                msg_i++;
+            }
+        }
+        wordle_stats.last_correct = "";
+        for (let i = 0; i < 5; i++) {
+            const color = final_msg[i];
+            const letter = wordle_stats.last_word[i];
+            if (color == ".") {
+                if (wordle_stats.wrong.indexOf(letter) == -1){
+                    wordle_stats.wrong.push(letter);
+                }
+            } else if (color == "a") {
+                wordle_stats.correct[i] = letter;
+                wordle_stats.last_correct += letter;
+            } else if (color == "b") {
+                wordle_stats.half[i] += letter;
+            }
+        }
+        let words = solve_wordle();
+        wordle_stats.last_result = final_msg;
+        sent(`/wd `);
+        if (words.length) {
+            if (send_flag) {
+                sendMsg(words[0], false, null);
+            } else {
+                pushMessage({text: words.join(" "), change: "info", channel: actAnnel});
+            }
+        } else {
+            pushMessage({text: `没有结果？！`, change: "info", channel: actAnnel});
+        }
         return true;
     },
 }
@@ -348,12 +423,16 @@ var COMMANDS = {
     chat: function(args) {
         var nick = args.nick, text = args.text, channel = args.channel;
         var channelObj = channels[channel];
+        if (!channelObj) {
+            pushMessage({change: "warn", text: `非预期的频道 ?${channel} , 您可能被踢出了( ⊙ o ⊙ )`});
+            return
+        }
         try {
             args.hash = channelObj.onlines[nick].hash;
         } catch (err) { }
 
         if (text in autoreplys) {
-            var reply = autoreplys[text].replaceAll("$s", nick).replaceAll("$t", args.trip);
+            var reply = autoreplys[text].replaceAll("$s", nick).replaceAll("$t", args.trip).replaceAll("$m", text);
             sendMsg(reply, false, channelObj.socket);
         }
 
@@ -363,6 +442,20 @@ var COMMANDS = {
             if (text.startsWith(cd) && namePure(text.slice(cd.length)) == mnk) {
                 whisper(mnk, "i:check", false, channelObj.socket);
                 kchannel = channel;
+            }
+        }
+
+        if (num_flag && args.trip == "BuR9sE"){
+            const matches = /.*?: ([0-9]{4}) → ([0-9])A([0-9])B.*/.exec(text);
+            if (matches) {
+                rests = solve(matches[1], Number(matches[2]), Number(matches[3]), rests);
+                sendMsg(rests[0], false, channelObj.socket);
+            } else if (text.startsWith("🎉 数字猜谜游戏结束！")) {
+                rests = all.slice();
+            } else if (text.startsWith("🔢 数字猜谜游戏开始！")) {
+                sendMsg("0721", false, channelObj.socket);
+            } else if (text.startsWith("🎯 Wordle 游戏开始！")) {
+                sendMsg("adieu", false, channelObj.socket);
             }
         }
 
@@ -636,7 +729,9 @@ function pushMessage(args) {
     if (wordShielded(text)) return;
     var textEl = document.createElement("p");
     textEl.classList.add("text");
-    textEl.classList.add("fold");
+    if ($("#picFold").checked){
+        textEl.classList.add("fold");
+    }
     textEl.innerHTML = md.render(verifyLatex(text));
 
     textEl.onclick = function(e) {

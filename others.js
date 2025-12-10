@@ -397,6 +397,7 @@ function addEmoji(url){
     li.classList.add("my-emoji");
     var img = document.createElement("img");
     img.src = url;
+    img.alt = "emoji";
 
     var a = document.createElement("a");
     a.onclick = function(e) {
@@ -405,7 +406,7 @@ function addEmoji(url){
     }
     li.appendChild(a);
     a.appendChild(img)
-    $("#emojis").appendChild(li);
+    $("#emojis > ol").appendChild(li);
 }
 // 删除表情
 function delEmoji(url) {
@@ -444,6 +445,9 @@ if (localStorageGet("sound-notify") == "true") {
 }
 if (localStorageGet("strictMd") == "true") {
     $("#strictMd").checked = true;
+}
+if (localStorageGet("picFold") == "false") {
+    $("#picFold").checked = false;
 }
 if (Number(localStorageGet("last-max"))) {
     lastMax = $("#last-max").value = Number(localStorageGet("last-max"));

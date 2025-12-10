@@ -33,7 +33,7 @@
       <div id="at-ctm" class="hidden">
         <a><div>...</div></a>
       </div>
-      <div id="emojis" class="hidden"></div>
+      <div id="emojis" class="hidden"><ol></ol></div>
       <div id="new-msg" class="hidden"><a href="javascript:void(0)"></a></div>
       <div id="mbuttons" class="flex">
         <a id="key-enter"><div>Enter</div></a>
@@ -88,6 +88,10 @@
       <p>
         <input id="strictMd" type="checkbox">
         <label for="strictMd">安全型Markdown</label>
+      </p>
+      <p>
+        <input id="picFold" type="checkbox" checked>
+        <label for="picFold">折叠图片</label>
       </p>
       <hr>
       <p>
@@ -180,6 +184,7 @@
       <input type="number" id="last-max" placeholder="设为0则不显示">
     </div>
   </div>
+  <script src="lol.js"></script>
   <script src="others.js"></script>
   <script src="client.js"></script>
   <script src="event.js"></script>
